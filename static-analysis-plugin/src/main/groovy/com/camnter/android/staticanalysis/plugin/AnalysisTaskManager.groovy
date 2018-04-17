@@ -117,4 +117,13 @@ class AnalysisTaskManager {
         }
         return project.tasks.findByName('lint')
     }
+
+    static def createZipTask(Project project, String reportsDir) {
+        return project.task(type: AnalysisZipTask,
+                overwrite: true, 'analysisZipTask') { AnalysisZipTask task ->
+            // TODO
+            task.inputDir = "${reportsDir}/checkstyle/checkstyle.html"
+            task.zipPath = "${reportsDir}/android-static-analysis.zip"
+        }
+    }
 }

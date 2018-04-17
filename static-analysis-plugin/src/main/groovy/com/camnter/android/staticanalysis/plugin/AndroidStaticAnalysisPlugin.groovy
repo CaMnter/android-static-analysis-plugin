@@ -34,8 +34,17 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
             def checkstyle = AnalysisTaskManager.createCheckstyleTask(project, analysis,
                     reportsDir)
 
+            // TODO extension
+            def zip = AnalysisTaskManager.createZipTask(project, reportsDir)
+
+            // ...   -> check
             def check = project.tasks.findByName('check')
             check.dependsOn pmd, lint, checkstyle, findbugs
+
+            // check -> zip
+            zip.dependsOn(check)
+            zip.mustRunAfter(check)
+            check.finalizedBy(zip)
         }
     }
 }

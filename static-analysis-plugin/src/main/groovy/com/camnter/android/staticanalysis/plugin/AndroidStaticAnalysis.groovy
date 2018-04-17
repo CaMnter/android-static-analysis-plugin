@@ -22,18 +22,18 @@ class AndroidStaticAnalysis {
     def findBugsEffort = "max"
     def findBugsExcludeFilter = ""
     def findBugsReportLevel = "high"
-    def findBugsIgnoreFailures = false
+    def findBugsIgnoreFailures = true
 
     def pmdRuleSets = []
     def pmdRuleSetFiles = ""
-    def pmdIgnoreFailures = false
+    def pmdIgnoreFailures = true
 
     def pmdVersion = DEFAULT_PMD_VERSION
     def findBugsVersion = DEFAULT_FINDBUGS_VERSION
     def checkstyleVersion = DEFAULT_CHECKSTYLE_VERSION
 
     static def refitAnalysis(Project project, AndroidStaticAnalysis analysis) {
-        def configDir = "${project.rootDir}/android-static-analysis-config"
+        def configDir = "${project.rootDir}/static-analysis-plugin-config"
         if (StringUtils.isEmpty(analysis.lintConfig)) {
             analysis.lintConfig = "$configDir/lint/lint.xml"
         }
