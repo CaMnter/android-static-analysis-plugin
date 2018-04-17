@@ -44,6 +44,7 @@ class AnalysisTaskManager {
     }
 
     static def createFindBugsTask(Project project, String configDir, String reportsDir) {
+        VersionHooker.setFindBugsVersion(project, DEFAULT_FINDBUGS_VERSION)
         def findBugsTask = project.task(type: FindBugs,
                 overwrite: true, 'findBugsTask') { FindBugs task ->
             task.with {
@@ -74,6 +75,7 @@ class AnalysisTaskManager {
     }
 
     static def createPmdTask(Project project, String configDir, String reportsDir) {
+        VersionHooker.setFindBugsVersion(project, DEFAULT_PMD_VERSION)
         return project.task(type: Pmd,
                 overwrite: true, 'pmdTask') { Pmd task ->
             task.with {

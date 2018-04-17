@@ -32,6 +32,4 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
         project.extensions.create('androidStaticAnalysis',
                 AndroidStaticAnalysis)
     }
-
-
 }

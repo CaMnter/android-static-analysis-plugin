@@ -13,4 +13,14 @@ class PluginUtils {
         }
         pluginManager.apply(pluginClazz)
     }
+
+    static <T extends Plugin> T getPluginIfApply(Project project,
+            Class<? extends Plugin> pluginClazz) {
+        PluginContainer pluginManager = project.getPlugins()
+        if (pluginManager.hasPlugin(pluginClazz)) {
+            return pluginManager.getPlugin(pluginClazz)
+        } else {
+            return null
+        }
+    }
 }
