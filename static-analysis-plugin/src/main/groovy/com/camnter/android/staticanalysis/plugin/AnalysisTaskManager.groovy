@@ -32,10 +32,10 @@ class AnalysisTaskManager {
                     xml.enabled = false
                     html.enabled = true
                     xml.with {
-                        destination = "$reportsDir/checkstyle/checkstyle.xml"
+                        destination = "$reportsDir/static-analysis-report/checkstyle.xml"
                     }
                     html.with {
-                        destination = "$reportsDir/checkstyle/checkstyle.html"
+                        destination = "$reportsDir/static-analysis-report/checkstyle.html"
                     }
                 }
                 classpath = project.files()
@@ -63,10 +63,10 @@ class AnalysisTaskManager {
                     xml.enabled = false
                     html.enabled = true
                     xml.with {
-                        destination = "$reportsDir/findbugs/findbugs.xml"
+                        destination = "$reportsDir/static-analysis-report/findbugs.xml"
                     }
                     html.with {
-                        destination = "$reportsDir/findbugs/findbugs.html"
+                        destination = "$reportsDir/static-analysis-report/findbugs.html"
                     }
                 }
                 classpath = project.files()
@@ -90,10 +90,10 @@ class AnalysisTaskManager {
                     xml.enabled = false
                     html.enabled = true
                     xml.with {
-                        destination = "$reportsDir/pmd/pmd.xml"
+                        destination = "$reportsDir/static-analysis-report/pmd.xml"
                     }
                     html.with {
-                        destination = "$reportsDir/pmd/pmd.html"
+                        destination = "$reportsDir/static-analysis-report/pmd.html"
                     }
                 }
             }
@@ -110,8 +110,8 @@ class AnalysisTaskManager {
                     xmlReport = false
                     htmlReport = true
                     lintConfig = project.file(analysis.lintConfig)
-                    htmlOutput = project.file("$reportsDir/lint/lint-result.html")
-                    xmlOutput = project.file("$reportsDir/lint/lint-result.xml")
+                    htmlOutput = project.file("$reportsDir/static-analysis-report/lint-result.html")
+                    xmlOutput = project.file("$reportsDir/static-analysis-report/lint-result.xml")
                 }
             }
         }
@@ -121,9 +121,8 @@ class AnalysisTaskManager {
     static def createZipTask(Project project, String reportsDir) {
         return project.task(type: AnalysisZipTask,
                 overwrite: true, 'analysisZipTask') { AnalysisZipTask task ->
-            // TODO
-            task.inputDir = "${reportsDir}/checkstyle/checkstyle.html"
-            task.zipPath = "${reportsDir}/android-static-analysis.zip"
+            task.inputDir = "${reportsDir}/static-analysis-report"
+            task.zipPath = "${reportsDir}/static-analysis-report.zip"
         }
     }
 }
