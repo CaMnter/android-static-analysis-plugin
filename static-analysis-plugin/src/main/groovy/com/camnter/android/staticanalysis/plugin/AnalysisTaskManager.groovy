@@ -7,22 +7,22 @@ import org.gradle.api.plugins.quality.Checkstyle
 import org.gradle.api.plugins.quality.FindBugs
 import org.gradle.api.plugins.quality.Pmd
 
+/**
+ * @author CaMnter
+ */
+
 class AnalysisTaskManager {
 
-    static final def DEFAULT_CHECKSTYLE_VERSION = "8.8"
-    static final def DEFAULT_PMD_VERSION = "6.2.0"
-    static final def DEFAULT_FINDBUGS_VERSION = "3.0.1"
-
-    static def createCheckStyleTask(Project project, String configDir, String reportsDir) {
-        VersionHooker.setCheckstyleVersion(project, DEFAULT_CHECKSTYLE_VERSION)
+    static def createCheckstyleTask(Project project, AndroidStaticAnalysis analysis,
+            String reportsDir) {
+        VersionHooker.setCheckstyleVersion(project, analysis.checkstyleVersion)
         return project.task(type: Checkstyle,
-                overwrite: false, 'checkstyleTask') { Checkstyle task ->
+                overwrite: false, 'staticAnalysisCheckstyle') { Checkstyle task ->
             task.with {
-                // TODO
-                maxErrors = 100
-                configFile = project.file("$configDir/checkstyle/checkstyle.xml")
+                maxErrors = analysis.checkstyleMaxErrors
+                configFile = project.file(analysis.checkstyleConfigFile)
                 configProperties.checkstyleSuppressionsPath =
-                        project.file("$configDir/checkstyle/suppressions.xml").absolutePath
+                        project.file(analysis.checkstyleSuppressionsPath).absolutePath
                 source = 'src'
                 include('**/*.java')
                 exclude('**/gen/**')
@@ -43,15 +43,16 @@ class AnalysisTaskManager {
         }
     }
 
-    static def createFindBugsTask(Project project, String configDir, String reportsDir) {
-        VersionHooker.setFindBugsVersion(project, DEFAULT_FINDBUGS_VERSION)
+    static def createFindBugsTask(Project project, AndroidStaticAnalysis analysis,
+            String reportsDir) {
+        VersionHooker.setFindBugsVersion(project, analysis.findBugsVersion)
         def findBugsTask = project.task(type: FindBugs,
-                overwrite: true, 'findBugsTask') { FindBugs task ->
+                overwrite: true, 'staticAnalysisFindBugs') { FindBugs task ->
             task.with {
-                ignoreFailures = false
-                effort = "max"
-                reportLevel = "high"
-                excludeFilter = project.file("$configDir/findbugs/findbugs-filter.xml")
+                ignoreFailures = analysis.findBugsIgnoreFailures
+                effort = analysis.findBugsEffort
+                reportLevel = analysis.findBugsReportLevel
+                excludeFilter = project.file(analysis.findBugsExcludeFilter)
                 classes = project.files("${project.rootDir}/app/build/intermediates/classes")
                 source = 'src'
                 include('**/*.java')
@@ -74,14 +75,14 @@ class AnalysisTaskManager {
         return findBugsTask
     }
 
-    static def createPmdTask(Project project, String configDir, String reportsDir) {
-        VersionHooker.setFindBugsVersion(project, DEFAULT_PMD_VERSION)
+    static def createPmdTask(Project project, AndroidStaticAnalysis analysis, String reportsDir) {
+        VersionHooker.setPmsVersion(project, analysis.pmdVersion)
         return project.task(type: Pmd,
-                overwrite: true, 'pmdTask') { Pmd task ->
+                overwrite: true, 'staticAnalysisPmd') { Pmd task ->
             task.with {
-                ignoreFailures = false
-                ruleSetFiles = project.files("$configDir/pmd/pmd-ruleset.xml")
-                ruleSets = []
+                ignoreFailures = analysis.pmdIgnoreFailures
+                ruleSetFiles = project.files(analysis.pmdRuleSetFiles)
+                ruleSets = analysis.pmdRuleSets
                 source = 'src'
                 include('**/*.java')
                 exclude('**/gen/**')
@@ -99,7 +100,8 @@ class AnalysisTaskManager {
         }
     }
 
-    static def configAndroidLint(Project project, String configDir, String reportsDir) {
+    static def configAndroidLint(Project project, AndroidStaticAnalysis analysis,
+            String reportsDir) {
         if (project.plugins.hasPlugin(AppPlugin.class)) {
             AppExtension android = project.extensions.findByType(AppExtension.class)
             android.with {
@@ -107,7 +109,7 @@ class AnalysisTaskManager {
                     abortOnError = false
                     xmlReport = false
                     htmlReport = true
-                    lintConfig = project.file("$configDir/lint/lint.xml")
+                    lintConfig = project.file(analysis.lintConfig)
                     htmlOutput = project.file("$reportsDir/lint/lint-result.html")
                     xmlOutput = project.file("$reportsDir/lint/lint-result.xml")
                 }
@@ -115,5 +117,4 @@ class AnalysisTaskManager {
         }
         return project.tasks.findByName('lint')
     }
-
 }

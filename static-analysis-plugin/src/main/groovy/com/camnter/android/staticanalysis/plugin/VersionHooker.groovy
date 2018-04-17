@@ -1,5 +1,6 @@
 package com.camnter.android.staticanalysis.plugin
 
+import com.camnter.android.staticanalysis.plugin.utils.PluginUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.CheckstylePlugin
@@ -8,6 +9,10 @@ import org.gradle.api.plugins.quality.FindBugsPlugin
 import org.gradle.api.plugins.quality.PmdPlugin
 
 import java.lang.reflect.Field
+
+/**
+ * @author CaMnter
+ */
 
 class VersionHooker {
 

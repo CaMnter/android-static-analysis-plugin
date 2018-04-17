@@ -1,8 +1,12 @@
-package com.camnter.android.staticanalysis.plugin
+package com.camnter.android.staticanalysis.plugin.utils
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.PluginContainer
+
+/**
+ * @author CaMnter
+ */
 
 class PluginUtils {
 

@@ -1,4 +1,8 @@
-package com.camnter.android.staticanalysis.plugin
+package com.camnter.android.staticanalysis.plugin.utils
+
+/**
+ * @author CaMnter
+ */
 
 class StringUtils {
 

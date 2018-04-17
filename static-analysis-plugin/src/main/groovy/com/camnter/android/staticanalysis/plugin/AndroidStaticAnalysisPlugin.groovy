@@ -1,15 +1,17 @@
 package com.camnter.android.staticanalysis.plugin
 
+import com.camnter.android.staticanalysis.plugin.utils.PluginUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.CheckstylePlugin
 import org.gradle.api.plugins.quality.FindBugsPlugin
 import org.gradle.api.plugins.quality.PmdPlugin
 
-class AndroidStaticAnalysisPlugin implements Plugin<Project> {
+/**
+ * @author CaMnter
+ */
 
-    def configDir
-    def reportsDir
+class AndroidStaticAnalysisPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
@@ -18,18 +20,22 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
         PluginUtils.applyPluginIfNotApply(project, FindBugsPlugin.class)
         PluginUtils.applyPluginIfNotApply(project, CheckstylePlugin.class)
 
-        reportsDir = "${project.buildDir}/android-static-analysis"
-        configDir = "${project.rootDir}/android-static-analysis-config"
-
-        def pmd = AnalysisTaskManager.createPmdTask(project, configDir, reportsDir)
-        def lint = AnalysisTaskManager.configAndroidLint(project, configDir, reportsDir)
-        def findbugs = AnalysisTaskManager.createFindBugsTask(project, configDir, reportsDir)
-        def checkstyle = AnalysisTaskManager.createCheckStyleTask(project, configDir, reportsDir)
-
-        def check = project.tasks.findByName('check')
-        check.dependsOn pmd, lint, checkstyle, findbugs
-
         project.extensions.create('androidStaticAnalysis',
                 AndroidStaticAnalysis)
+        project.afterEvaluate {
+            AndroidStaticAnalysis analysis = project.androidStaticAnalysis
+            AndroidStaticAnalysis.refitAnalysis(project, analysis)
+
+            def reportsDir = "${project.buildDir}/android-static-analysis"
+
+            def pmd = AnalysisTaskManager.createPmdTask(project, analysis, reportsDir)
+            def lint = AnalysisTaskManager.configAndroidLint(project, analysis, reportsDir)
+            def findbugs = AnalysisTaskManager.createFindBugsTask(project, analysis, reportsDir)
+            def checkstyle = AnalysisTaskManager.createCheckstyleTask(project, analysis,
+                    reportsDir)
+
+            def check = project.tasks.findByName('check')
+            check.dependsOn pmd, lint, checkstyle, findbugs
+        }
     }
 }
