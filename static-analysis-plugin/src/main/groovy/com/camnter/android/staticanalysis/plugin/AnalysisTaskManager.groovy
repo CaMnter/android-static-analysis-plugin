@@ -15,14 +15,15 @@ class AnalysisTaskManager {
 
     static def createCheckstyleTask(Project project, AndroidStaticAnalysis analysis,
             String reportsDir) {
-        VersionHooker.setCheckstyleVersion(project, analysis.checkstyleVersion)
+        VersionHooker.setCheckstyleVersion(project, analysis.checkstyle.toolVersion)
         return project.task(type: Checkstyle,
                 overwrite: false, 'staticAnalysisCheckstyle') { Checkstyle task ->
             task.with {
-                maxErrors = analysis.checkstyleMaxErrors
-                configFile = project.file(analysis.checkstyleConfigFile)
+                maxErrors = analysis.checkstyle.maxErrors
+                maxWarnings = analysis.checkstyle.maxWarnings
+                configFile = project.file(analysis.checkstyle.configDir)
                 configProperties.checkstyleSuppressionsPath =
-                        project.file(analysis.checkstyleSuppressionsPath).absolutePath
+                        project.file(analysis.checkstyle.suppressionsPath).absolutePath
                 source = 'src'
                 include('**/*.java')
                 exclude('**/gen/**')
@@ -45,14 +46,14 @@ class AnalysisTaskManager {
 
     static def createFindBugsTask(Project project, AndroidStaticAnalysis analysis,
             String reportsDir) {
-        VersionHooker.setFindBugsVersion(project, analysis.findBugsVersion)
+        VersionHooker.setFindBugsVersion(project, analysis.findBugs.toolVersion)
         def findBugsTask = project.task(type: FindBugs,
                 overwrite: true, 'staticAnalysisFindBugs') { FindBugs task ->
             task.with {
-                ignoreFailures = analysis.findBugsIgnoreFailures
-                effort = analysis.findBugsEffort
-                reportLevel = analysis.findBugsReportLevel
-                excludeFilter = project.file(analysis.findBugsExcludeFilter)
+                ignoreFailures = analysis.findBugs.ignoreFailures
+                effort = analysis.findBugs.effort
+                reportLevel = analysis.findBugs.reportLevel
+                excludeFilter = project.file(analysis.findBugs.excludeFilter)
                 classes = project.files("${project.rootDir}/app/build/intermediates/classes")
                 source = 'src'
                 include('**/*.java')
@@ -76,13 +77,13 @@ class AnalysisTaskManager {
     }
 
     static def createPmdTask(Project project, AndroidStaticAnalysis analysis, String reportsDir) {
-        VersionHooker.setPmsVersion(project, analysis.pmdVersion)
+        VersionHooker.setPmsVersion(project, analysis.pmd.toolVersion)
         return project.task(type: Pmd,
                 overwrite: true, 'staticAnalysisPmd') { Pmd task ->
             task.with {
-                ignoreFailures = analysis.pmdIgnoreFailures
-                ruleSetFiles = project.files(analysis.pmdRuleSetFiles)
-                ruleSets = analysis.pmdRuleSets
+                ignoreFailures = analysis.pmd.ignoreFailures
+                ruleSetFiles = project.files(analysis.pmd.ruleSetFiles)
+                ruleSets = analysis.pmd.ruleSets
                 source = 'src'
                 include('**/*.java')
                 exclude('**/gen/**')

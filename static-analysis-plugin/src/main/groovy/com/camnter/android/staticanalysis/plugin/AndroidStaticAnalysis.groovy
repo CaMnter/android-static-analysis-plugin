@@ -1,5 +1,9 @@
 package com.camnter.android.staticanalysis.plugin
 
+import com.camnter.android.staticanalysis.plugin.extension.CheckstyleExtension
+import com.camnter.android.staticanalysis.plugin.extension.FindBugsExtension
+import com.camnter.android.staticanalysis.plugin.extension.LintExtension
+import com.camnter.android.staticanalysis.plugin.extension.PmdExtension
 import com.camnter.android.staticanalysis.plugin.utils.StringUtils
 import org.gradle.api.Project
 
@@ -9,45 +13,71 @@ import org.gradle.api.Project
 
 class AndroidStaticAnalysis {
 
-    static final def DEFAULT_PMD_VERSION = "6.2.0"
-    static final def DEFAULT_CHECKSTYLE_VERSION = "8.8"
-    static final def DEFAULT_FINDBUGS_VERSION = "3.0.1"
+    public static final def DEFAULT_PMD_VERSION = "6.2.0"
+    public static final def DEFAULT_CHECKSTYLE_VERSION = "8.8"
+    public static final def DEFAULT_FINDBUGS_VERSION = "3.0.1"
 
-    def lintConfig = ""
-
-    def checkstyleMaxErrors = 30
-    def checkstyleConfigFile = ""
-    def checkstyleSuppressionsPath = ""
-
-    def findBugsEffort = "max"
-    def findBugsExcludeFilter = ""
-    def findBugsReportLevel = "high"
-    def findBugsIgnoreFailures = true
-
-    def pmdRuleSets = []
-    def pmdRuleSetFiles = ""
-    def pmdIgnoreFailures = true
-
-    def pmdVersion = DEFAULT_PMD_VERSION
-    def findBugsVersion = DEFAULT_FINDBUGS_VERSION
-    def checkstyleVersion = DEFAULT_CHECKSTYLE_VERSION
+    PmdExtension pmd
+    LintExtension lint
+    FindBugsExtension findBugs
+    CheckstyleExtension checkstyle
 
     static def refitAnalysis(Project project, AndroidStaticAnalysis analysis) {
+
         def configDir = "${project.rootDir}/static-analysis-plugin-config"
-        if (StringUtils.isEmpty(analysis.lintConfig)) {
-            analysis.lintConfig = "$configDir/lint/lint.xml"
+
+        if (analysis.pmd == null) {
+            analysis.pmd = new PmdExtension()
         }
-        if (StringUtils.isEmpty(analysis.checkstyleConfigFile)) {
-            analysis.checkstyleConfigFile = "$configDir/checkstyle/checkstyle.xml"
+        refitPmdExtension(configDir, analysis.pmd)
+
+        if (analysis.lint == null) {
+            analysis.lint = new LintExtension()
         }
-        if (StringUtils.isEmpty(analysis.checkstyleSuppressionsPath)) {
-            analysis.checkstyleSuppressionsPath = "$configDir/checkstyle/suppressions.xml"
+        refitLintExtension(configDir, analysis.lint)
+
+        if (analysis.findBugs == null) {
+            analysis.findBugs = new FindBugsExtension()
         }
-        if (StringUtils.isEmpty(analysis.findBugsExcludeFilter)) {
-            analysis.findBugsExcludeFilter = "$configDir/findbugs/findbugs-filter.xml"
+        refitFindBugsExtension(configDir, analysis.findBugs)
+
+        if (analysis.checkstyle == null) {
+            analysis.checkstyle = new CheckstyleExtension()
         }
-        if (StringUtils.isEmpty(analysis.pmdRuleSetFiles)) {
-            analysis.pmdRuleSetFiles = "$configDir/pmd/pmd-ruleset.xml"
+        refitCheckstyleExtension(configDir, analysis.checkstyle)
+    }
+
+    static def refitCheckstyleExtension(String configDir, CheckstyleExtension checkstyle) {
+        checkstyle.with {
+            if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_CHECKSTYLE_VERSION
+            if (StringUtils.isEmpty(configDir)) configDir = "$configDir/checkstyle/checkstyle.xml"
+            if (StringUtils.isEmpty(suppressionsPath)) {
+                suppressionsPath = "$configDir/checkstyle/suppressions.xml"
+            }
+        }
+    }
+
+    static def refitFindBugsExtension(String configDir, FindBugsExtension findBugs) {
+        findBugs.with {
+            if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_FINDBUGS_VERSION
+            if (StringUtils.isEmpty(excludeFilter)) {
+                excludeFilter = "$configDir/findbugs/findbugs-filter.xml"
+            }
+        }
+    }
+
+    static def refitPmdExtension(String configDir, PmdExtension pmd) {
+        pmd.with {
+            if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_PMD_VERSION
+            if (StringUtils.isEmpty(ruleSetFiles)) {
+                ruleSetFiles = "$configDir/checkstyle/suppressions.xml"
+            }
+        }
+    }
+
+    static def refitLintExtension(String configDir, LintExtension lint) {
+        lint.with {
+            if (StringUtils.isEmpty(lintConfig)) lintConfig = "$configDir/lint/lint.xml"
         }
     }
 }
