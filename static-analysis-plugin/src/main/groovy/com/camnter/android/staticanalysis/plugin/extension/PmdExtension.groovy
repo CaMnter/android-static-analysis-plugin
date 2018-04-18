@@ -6,7 +6,7 @@ package com.camnter.android.staticanalysis.plugin.extension
 
 class PmdExtension extends AnalysisExtension {
 
-    public List<String> ruleSets = []
+    def ruleSets = []
     public String ruleSetFiles = ""
 
 }

@@ -1,9 +1,5 @@
-package com.camnter.android.staticanalysis.plugin
+package com.camnter.android.staticanalysis.plugin.extension
 
-import com.camnter.android.staticanalysis.plugin.extension.CheckstyleExtension
-import com.camnter.android.staticanalysis.plugin.extension.FindBugsExtension
-import com.camnter.android.staticanalysis.plugin.extension.LintExtension
-import com.camnter.android.staticanalysis.plugin.extension.PmdExtension
 import com.camnter.android.staticanalysis.plugin.utils.StringUtils
 import org.gradle.api.Project
 
@@ -24,60 +20,62 @@ class AndroidStaticAnalysis {
 
     static def refitAnalysis(Project project, AndroidStaticAnalysis analysis) {
 
-        def configDir = "${project.rootDir}/static-analysis-plugin-config"
+        def baseConfigDir = "${project.rootDir}/static-analysis-plugin-config"
 
         if (analysis.pmd == null) {
             analysis.pmd = new PmdExtension()
         }
-        refitPmdExtension(configDir, analysis.pmd)
+        refitPmdExtension(baseConfigDir, analysis.pmd)
 
         if (analysis.lint == null) {
             analysis.lint = new LintExtension()
         }
-        refitLintExtension(configDir, analysis.lint)
+        refitLintExtension(baseConfigDir, analysis.lint)
 
         if (analysis.findBugs == null) {
             analysis.findBugs = new FindBugsExtension()
         }
-        refitFindBugsExtension(configDir, analysis.findBugs)
+        refitFindBugsExtension(baseConfigDir, analysis.findBugs)
 
         if (analysis.checkstyle == null) {
             analysis.checkstyle = new CheckstyleExtension()
         }
-        refitCheckstyleExtension(configDir, analysis.checkstyle)
+        refitCheckstyleExtension(baseConfigDir, analysis.checkstyle)
     }
 
-    static def refitCheckstyleExtension(String configDir, CheckstyleExtension checkstyle) {
+    static def refitCheckstyleExtension(String baseConfigDir, CheckstyleExtension checkstyle) {
         checkstyle.with {
             if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_CHECKSTYLE_VERSION
-            if (StringUtils.isEmpty(configDir)) configDir = "$configDir/checkstyle/checkstyle.xml"
+            if (StringUtils.isEmpty(configDir)) {
+                configDir = "$baseConfigDir/checkstyle/checkstyle.xml"
+            }
             if (StringUtils.isEmpty(suppressionsPath)) {
-                suppressionsPath = "$configDir/checkstyle/suppressions.xml"
+                suppressionsPath = "$baseConfigDir/checkstyle/suppressions.xml"
             }
         }
     }
 
-    static def refitFindBugsExtension(String configDir, FindBugsExtension findBugs) {
+    static def refitFindBugsExtension(String baseConfigDir, FindBugsExtension findBugs) {
         findBugs.with {
             if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_FINDBUGS_VERSION
             if (StringUtils.isEmpty(excludeFilter)) {
-                excludeFilter = "$configDir/findbugs/findbugs-filter.xml"
+                excludeFilter = "$baseConfigDir/findbugs/findbugs-filter.xml"
             }
         }
     }
 
-    static def refitPmdExtension(String configDir, PmdExtension pmd) {
+    static def refitPmdExtension(String baseConfigDir, PmdExtension pmd) {
         pmd.with {
             if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_PMD_VERSION
             if (StringUtils.isEmpty(ruleSetFiles)) {
-                ruleSetFiles = "$configDir/checkstyle/suppressions.xml"
+                ruleSetFiles = "$baseConfigDir/pmd/pmd-ruleset.xml"
             }
         }
     }
 
-    static def refitLintExtension(String configDir, LintExtension lint) {
+    static def refitLintExtension(String baseConfigDir, LintExtension lint) {
         lint.with {
-            if (StringUtils.isEmpty(lintConfig)) lintConfig = "$configDir/lint/lint.xml"
+            if (StringUtils.isEmpty(lintConfig)) lintConfig = "$baseConfigDir/lint/lint.xml"
         }
     }
 }

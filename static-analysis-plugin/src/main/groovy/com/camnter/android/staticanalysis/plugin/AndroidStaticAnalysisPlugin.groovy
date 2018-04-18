@@ -1,5 +1,10 @@
 package com.camnter.android.staticanalysis.plugin
 
+import com.camnter.android.staticanalysis.plugin.extension.AndroidStaticAnalysis
+import com.camnter.android.staticanalysis.plugin.extension.CheckstyleExtension
+import com.camnter.android.staticanalysis.plugin.extension.FindBugsExtension
+import com.camnter.android.staticanalysis.plugin.extension.LintExtension
+import com.camnter.android.staticanalysis.plugin.extension.PmdExtension
 import com.camnter.android.staticanalysis.plugin.utils.PluginUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -22,6 +27,11 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
 
         project.extensions.create('androidStaticAnalysis',
                 AndroidStaticAnalysis)
+        project.androidStaticAnalysis.extensions.create('pmd', PmdExtension)
+        project.androidStaticAnalysis.extensions.create('lint', LintExtension)
+        project.androidStaticAnalysis.extensions.create('findBugs', FindBugsExtension)
+        project.androidStaticAnalysis.extensions.create('checkstyle', CheckstyleExtension)
+
         project.afterEvaluate {
             AndroidStaticAnalysis analysis = project.androidStaticAnalysis
             AndroidStaticAnalysis.refitAnalysis(project, analysis)
