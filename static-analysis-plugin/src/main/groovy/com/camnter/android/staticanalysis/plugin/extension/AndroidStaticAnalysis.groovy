@@ -9,9 +9,9 @@ import org.gradle.api.Project
 
 class AndroidStaticAnalysis {
 
-    public static final def DEFAULT_PMD_VERSION = "6.2.0"
-    public static final def DEFAULT_CHECKSTYLE_VERSION = "8.8"
-    public static final def DEFAULT_FINDBUGS_VERSION = "3.0.1"
+    public static final def DEFAULT_PMD_VERSION = '6.2.0'
+    public static final def DEFAULT_CHECKSTYLE_VERSION = '8.8'
+    public static final def DEFAULT_FINDBUGS_VERSION = '3.0.1'
 
     PmdExtension pmd
     LintExtension lint

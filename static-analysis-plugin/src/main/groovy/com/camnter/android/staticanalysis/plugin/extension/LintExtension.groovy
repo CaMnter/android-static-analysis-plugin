@@ -6,6 +6,6 @@ package com.camnter.android.staticanalysis.plugin.extension
 
 class LintExtension {
 
-    public String lintConfig = ""
+    public String lintConfig = ''
 
 }

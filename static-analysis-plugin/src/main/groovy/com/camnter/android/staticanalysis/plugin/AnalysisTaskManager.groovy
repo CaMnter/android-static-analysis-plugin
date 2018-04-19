@@ -2,6 +2,7 @@ package com.camnter.android.staticanalysis.plugin
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
+import com.camnter.android.staticanalysis.plugin.extension.AndroidStaticAnalysis
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Checkstyle
 import org.gradle.api.plugins.quality.FindBugs
@@ -13,7 +14,7 @@ import org.gradle.api.plugins.quality.Pmd
 
 class AnalysisTaskManager {
 
-    static def createCheckstyleTask(Project project, com.camnter.android.staticanalysis.plugin.extension.AndroidStaticAnalysis analysis,
+    static def createCheckstyleTask(Project project, AndroidStaticAnalysis analysis,
             String reportsDir) {
         VersionHooker.setCheckstyleVersion(project, analysis.checkstyle.toolVersion)
         return project.task(type: Checkstyle,
@@ -44,7 +45,7 @@ class AnalysisTaskManager {
         }
     }
 
-    static def createFindBugsTask(Project project, com.camnter.android.staticanalysis.plugin.extension.AndroidStaticAnalysis analysis,
+    static def createFindBugsTask(Project project, AndroidStaticAnalysis analysis,
             String reportsDir) {
         VersionHooker.setFindBugsVersion(project, analysis.findBugs.toolVersion)
         def findBugsTask = project.task(type: FindBugs,
@@ -76,7 +77,7 @@ class AnalysisTaskManager {
         return findBugsTask
     }
 
-    static def createPmdTask(Project project, com.camnter.android.staticanalysis.plugin.extension.AndroidStaticAnalysis analysis, String reportsDir) {
+    static def createPmdTask(Project project, AndroidStaticAnalysis analysis, String reportsDir) {
         VersionHooker.setPmsVersion(project, analysis.pmd.toolVersion)
         return project.task(type: Pmd,
                 overwrite: true, 'staticAnalysisPmd') { Pmd task ->
@@ -101,7 +102,7 @@ class AnalysisTaskManager {
         }
     }
 
-    static def configAndroidLint(Project project, com.camnter.android.staticanalysis.plugin.extension.AndroidStaticAnalysis analysis,
+    static def configAndroidLint(Project project, AndroidStaticAnalysis analysis,
             String reportsDir) {
         if (project.plugins.hasPlugin(AppPlugin.class)) {
             AppExtension android = project.extensions.findByType(AppExtension.class)
