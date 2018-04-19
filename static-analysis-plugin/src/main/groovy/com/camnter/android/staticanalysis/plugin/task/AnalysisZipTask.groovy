@@ -1,4 +1,4 @@
-package com.camnter.android.staticanalysis.plugin
+package com.camnter.android.staticanalysis.plugin.task
 
 import com.camnter.android.staticanalysis.plugin.utils.ZipUtils
 import org.gradle.api.DefaultTask

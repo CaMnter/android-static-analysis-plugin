@@ -3,6 +3,9 @@ package com.camnter.android.staticanalysis.plugin
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.camnter.android.staticanalysis.plugin.extension.AndroidStaticAnalysis
+import com.camnter.android.staticanalysis.plugin.extension.EmailExtension
+import com.camnter.android.staticanalysis.plugin.task.AnalysisZipTask
+import com.camnter.android.staticanalysis.plugin.task.EmailTask
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Checkstyle
 import org.gradle.api.plugins.quality.FindBugs
@@ -125,6 +128,18 @@ class AnalysisTaskManager {
                 overwrite: true, 'analysisZipTask') { AnalysisZipTask task ->
             task.inputDir = "${reportsDir}/static-analysis-report"
             task.zipPath = "${reportsDir}/static-analysis-report.zip"
+        }
+    }
+
+    static def createEmailTask(Project project, String reportsDir, EmailExtension email) {
+        return project.task(type: EmailTask,
+                overwrite: true, 'analysisEmailTask') { EmailTask task ->
+            task.email = email
+            task.zipPath = "${reportsDir}/static-analysis-report.zip"
+            task.htmlPaths = ["${reportsDir}/static-analysis-report/checkstyle.html",
+                              "${reportsDir}/static-analysis-report/findbugs.html",
+                              "${reportsDir}/static-analysis-report/pmd.html",
+                              "${reportsDir}/static-analysis-report/lint-result.html"]
         }
     }
 }

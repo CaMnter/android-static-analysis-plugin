@@ -13,11 +13,6 @@ class AndroidStaticAnalysis {
     public static final def DEFAULT_CHECKSTYLE_VERSION = '8.8'
     public static final def DEFAULT_FINDBUGS_VERSION = '3.0.1'
 
-    PmdExtension pmd
-    LintExtension lint
-    FindBugsExtension findBugs
-    CheckstyleExtension checkstyle
-
     static def refitAnalysis(Project project, AndroidStaticAnalysis analysis) {
 
         def baseConfigDir = "${project.rootDir}/static-analysis-plugin-config"
