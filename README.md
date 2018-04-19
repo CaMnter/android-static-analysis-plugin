@@ -1,5 +1,7 @@
 # android-static-analysis-plugin
 
+**Android hodgepodge static code quality check tool gradle plugin** . **(｡>﹏<｡)**   
+
 <br>
 <br>
 
