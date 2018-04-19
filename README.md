@@ -28,7 +28,7 @@ apply plugin: 'com.camnter.gradle.plugin.static.analysis'
 
 **findBugs**: `${project.rootDir}/static-analysis-plugin-config/findbugs/findbugs-filter.xml`   
 
-**checkstyle**: `${project.rootDir}/static-analysis-plugin-config/checkstyle/checkstyle.xml`
+**checkstyle**: `${project.rootDir}/static-analysis-plugin-config/checkstyle/checkstyle.xml`   
 **checkstyle-suppressions**: `${project.rootDir}/static-analysis-plugin-config/checkstyle/suppressions.xml`
 
 <br>
