@@ -5,7 +5,7 @@ android {
     defaultConfig {
         applicationId "com.camnter.android.staticsanalysis.plugin.demo"
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -30,4 +30,38 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
+
+apply plugin: 'com.camnter.gradle.plugin.static.analysis'
+
+/***********************
+ * 全部配置 && 默认配置 *
+ ***********************/
+androidStaticAnalysis {
+    pmd {
+        toolVersion = "6.2.0"
+        ignoreFailures = true
+        ruleSets = []
+        ruleSetFiles = "${project.rootDir}/static-analysis-plugin-config/pmd/pmd-ruleset.xml"
+    }
+    lint {
+        lintConfig = "${project.rootDir}/static-analysis-plugin-config/lint/lint.xml"
+    }
+    findBugs {
+        toolVersion = "3.0.1"
+        ignoreFailures = true
+        effort = "max"
+        excludeFilter =
+                "${project.rootDir}/static-analysis-plugin-config/findbugs/findbugs-filter.xml"
+        reportLevel = "high"
+    }
+    checkstyle {
+        toolVersion = "8.8"
+        ignoreFailures = true
+        configDir = "${project.rootDir}/static-analysis-plugin-config/checkstyle/checkstyle.xml"
+        maxErrors = 30
+        maxWarnings = 2147483647
+        suppressionsPath =
+                "${project.rootDir}/static-analysis-plugin-config/checkstyle/suppressions.xml"
+    }
 }
