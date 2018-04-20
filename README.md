@@ -1,62 +1,44 @@
 # android-static-analysis-plugin
 
+<br>
+
+[ ![Download](https://api.bintray.com/packages/camnter/maven/android-static-analysis-plugin/images/download.svg) ](https://bintray.com/camnter/maven/android-static-analysis-plugin/_latestVersion)  
+
+<br>
+
 **Android hodgepodge static code quality check tool gradle plugin** . **(｡>﹏<｡)**   
 
+<br>
 <br>
 
 # Gradle
 
-project **build.gradle**
+### `project`  **build.gradle**
 
-```gradle
-com.camnter.gradle.plugin:static-analysis-plugin:1.0.1
+```groovy
+com.camnter.gradle.plugin:static-analysis-plugin:1.0.2
 ```
 
-module **build.gradle**
+### `module`  **build.gradle**
 
-```gradle
+```groovy
 apply plugin: 'com.camnter.gradle.plugin.static.analysis'
 ```
 
 <br>
-
-# Rules file
-
-**Pmd**: `${project.rootDir}/static-analysis-plugin-config/pmd/pmd-ruleset.xml`   
-
-**lint**: `${project.rootDir}/static-analysis-plugin-config/lint/lint.xml`   
-
-**findBugs**: `${project.rootDir}/static-analysis-plugin-config/findbugs/findbugs-filter.xml`   
-
-**checkstyle**: `${project.rootDir}/static-analysis-plugin-config/checkstyle/checkstyle.xml`   
-**checkstyle-suppressions**: `${project.rootDir}/static-analysis-plugin-config/checkstyle/suppressions.xml`
-
 <br>
+
 
 # Simple configuration
 
-```gradle
-androidStaticAnalysis {
-    pmd {
-        ruleSetFiles = "${project.rootDir}/static-analysis-plugin-config/pmd/pmd-ruleset.xml"
-    }
-    lint {
-        lintConfig = "${project.rootDir}/static-analysis-plugin-config/lint/lint.xml"
-    }
-    findBugs {
-        excludeFilter = "${project.rootDir}/static-analysis-plugin-config/findbugs/findbugs-filter.xml"
-    }
-    checkstyle {
-        configDir = "${project.rootDir}/static-analysis-plugin-config/checkstyle/checkstyle.xml"
-        suppressionsPath = "${project.rootDir}/static-analysis-plugin-config/checkstyle/suppressions.xml"
-    }
-}
-```
+**You can do without any configuration. Plugin automatically generates a set of rules.**
 
 <br>
 <br>
 
-# Full default configuration
+# If you want to configure
+
+**Full default configuration:**
 
 ```gradle
 androidStaticAnalysis {
@@ -94,7 +76,7 @@ androidStaticAnalysis {
 # execute
 
 ```shell
-./gradlew check
+gradle check
 ```
 
 <br>
