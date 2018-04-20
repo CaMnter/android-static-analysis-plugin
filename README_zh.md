@@ -2,11 +2,11 @@
 
 <br>
 
-[ ![Download](https://api.bintray.com/packages/camnter/maven/android-static-analysis-plugin/images/download.svg) ](https://bintray.com/camnter/maven/android-static-analysis-plugin/_latestVersion) [中文版](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/README_zh.md)  
+[ ![Download](https://api.bintray.com/packages/camnter/maven/android-static-analysis-plugin/images/download.svg) ](https://bintray.com/camnter/maven/android-static-analysis-plugin/_latestVersion)  
 
 <br>
 
-**Android hodgepodge static code quality check tool gradle plugin** . **(｡>﹏<｡)**   
+**Android 大杂烩静态代码质量检查 gradle plugin** . **(｡>﹏<｡)**   
 
 <br>
 <br>
@@ -29,11 +29,11 @@ apply plugin: 'com.camnter.gradle.plugin.static.analysis'
 <br>
 
 
-# About configuration
+# 关于配置
 
-**You can do without any configuration. Plugin automatically generates a set of rules.**   
+**你可以不做任何配置。插件自动生成一组规则。**   
 
-**Just add the dependency configuration to the module you want to apply.**
+**只要在你想要应用的模块添加依赖配置即可。**
 
 ### `module`  **build.gradle**
 
@@ -44,9 +44,9 @@ apply plugin: 'com.camnter.gradle.plugin.static.analysis'
 <br>
 <br>
 
-# If you want to configure
+# 如果你想要配置
 
-**Full default configuration:**
+**全部默认配置:**
 
 ```groovy
 androidStaticAnalysis {
@@ -81,7 +81,7 @@ androidStaticAnalysis {
 <br>
 <br>
 
-# execute
+# 运行
 
 ```shell
 gradle check
