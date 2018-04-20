@@ -31,9 +31,6 @@ sourceSets {
     }
 }
 
-group = 'com.camnter.gradle.plugin'
-version = '1.0.1'
-
 sourceSets {
     main {
         groovy {
@@ -45,6 +42,5 @@ sourceSets {
         }
     }
 }
-
 
 apply from: 'upload.gradle'
