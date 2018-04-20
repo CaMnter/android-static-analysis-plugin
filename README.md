@@ -2,7 +2,9 @@
 
 <br>
 
-[ ![Download](https://api.bintray.com/packages/camnter/maven/android-static-analysis-plugin/images/download.svg) ](https://bintray.com/camnter/maven/android-static-analysis-plugin/_latestVersion) [中文版](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/README_zh.md)  
+[中文版](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/README_zh.md)  
+  
+[ ![Download](https://api.bintray.com/packages/camnter/maven/android-static-analysis-plugin/images/download.svg) ](https://bintray.com/camnter/maven/android-static-analysis-plugin/_latestVersion)   
 
 <br>
 
