@@ -31,7 +31,15 @@ apply plugin: 'com.camnter.gradle.plugin.static.analysis'
 
 # Simple configuration
 
-**You can do without any configuration. Plugin automatically generates a set of rules.**
+**You can do without any configuration. Plugin automatically generates a set of rules.**   
+
+**Just add the configuration under the module you want to apply.**
+
+### `module`  **build.gradle**
+
+```groovy
+apply plugin: 'com.camnter.gradle.plugin.static.analysis'
+```
 
 <br>
 <br>
