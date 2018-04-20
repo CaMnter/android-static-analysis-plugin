@@ -35,7 +35,8 @@ class DefaultRulesTask extends DefaultTask {
     public static final String DEFAULT_LINT_RULE_PATH = "default-rules/lint.xml"
     public static final String DEFAULT_FINDBUGS_RULE_PATH = "default-rules/findbugs-filter.xml"
     public static final String DEFAULT_CHECKSTYLE_RULE_PATH = "default-rules/checkstyle.xml"
-    public static final String DEFAULT_CHECKSTYLE_SUPPRESSIONS_RULE_PATH = "default-rules/checkstyle-suppressions.xml"
+    public static
+    final String DEFAULT_CHECKSTYLE_SUPPRESSIONS_RULE_PATH = "default-rules/checkstyle-suppressions.xml"
 
     @Input
     @Optional
@@ -64,25 +65,38 @@ class DefaultRulesTask extends DefaultTask {
     @TaskAction
     void main() {
         if (createDefaultPmdRule) {
-            createRuleFile(reportsDir, DEFAULT_PMD_RULE_PATH, PmdRule.RULE_SET)
+            File ruleFile = new File(reportsDir, DEFAULT_PMD_RULE_PATH)
+            printf "%-51s = %s\n",
+                    ['[DefaultRulesTask]   [pmd-rule-file]', ruleFile.absolutePath]
+            createRuleFile(ruleFile, PmdRule.RULE_SET)
         }
         if (createDefaultLintRule) {
-            createRuleFile(reportsDir, DEFAULT_LINT_RULE_PATH, LintRule.CONFIG)
+            File ruleFile = new File(reportsDir, DEFAULT_LINT_RULE_PATH)
+            printf "%-51s = %s\n",
+                    ['[DefaultRulesTask]   [lint-rule-file]', ruleFile.absolutePath]
+            createRuleFile(ruleFile, LintRule.CONFIG)
         }
         if (createDefaultFindBugsRule) {
-            createRuleFile(reportsDir, DEFAULT_FINDBUGS_RULE_PATH, FindBugsRule.EXCLUDE_FILTER)
+            File ruleFile = new File(reportsDir, DEFAULT_FINDBUGS_RULE_PATH)
+            printf "%-51s = %s\n",
+                    ['[DefaultRulesTask]   [findbugs-rule-file]', ruleFile.absolutePath]
+            createRuleFile(ruleFile, FindBugsRule.EXCLUDE_FILTER)
         }
         if (createDefaultCheckstyleRule) {
-            createRuleFile(reportsDir, DEFAULT_CHECKSTYLE_RULE_PATH, CheckstyleRule.CONFIG)
+            File ruleFile = new File(reportsDir, DEFAULT_CHECKSTYLE_RULE_PATH)
+            printf "%-51s = %s\n",
+                    ['[DefaultRulesTask]   [checkstyle-rule-file]', ruleFile.absolutePath]
+            createRuleFile(ruleFile, CheckstyleRule.CONFIG)
         }
         if (createDefaultCheckstyleSuppressionsRule) {
-            createRuleFile(reportsDir, DEFAULT_CHECKSTYLE_SUPPRESSIONS_RULE_PATH,
-                    CheckstyleRule.SUPPRESSIONS)
+            File ruleFile = new File(reportsDir, DEFAULT_CHECKSTYLE_SUPPRESSIONS_RULE_PATH)
+            printf "%-51s = %s\n",
+                    ['[DefaultRulesTask]   [checkstyle-suppressions-file]', ruleFile.absolutePath]
+            createRuleFile(ruleFile, CheckstyleRule.SUPPRESSIONS)
         }
     }
 
-    static def createRuleFile(String reportsDir, String path, String content) {
-        File ruleFile = new File(reportsDir, path)
+    static def createRuleFile(File ruleFile, String content) {
         def checkFileClosure = { File file ->
             if (file == null) return
             if (!file.parentFile.exists()) file.mkdirs()

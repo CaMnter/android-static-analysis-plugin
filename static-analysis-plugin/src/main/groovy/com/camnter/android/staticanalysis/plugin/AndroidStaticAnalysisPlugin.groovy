@@ -57,8 +57,7 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
                 rules = AnalysisTaskManager.createDefaultRulesTask(project, reportsDir, analysis)
             }
 
-
-            AndroidStaticAnalysis.refitAnalysis(project, analysis)
+            AndroidStaticAnalysis.refitAnalysis(project, analysis, reportsDir)
             def pmd = AnalysisTaskManager.createPmdTask(project, analysis, reportsDir)
             def lint = AnalysisTaskManager.configAndroidLint(project, analysis, reportsDir)
             def findbugs = AnalysisTaskManager.createFindBugsTask(project, analysis, reportsDir)
@@ -67,14 +66,15 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
 
             def check = project.tasks.findByName('check')
             if (null != rules) {
-                // rules -> pmd
+                // rules -> pmd -> lint -> findbugs -> checkstyle -> check
                 TaskUtils.adjustTaskPriorities(rules, pmd)
+                TaskUtils.adjustTaskPriorities(pmd, lint)
+                TaskUtils.adjustTaskPriorities(lint, findbugs)
+                TaskUtils.adjustTaskPriorities(findbugs, checkstyle)
+                TaskUtils.adjustTaskPriorities(checkstyle, check)
             }
             // pmd -> lint -> findbugs -> checkstyle -> check
-            TaskUtils.adjustTaskPriorities(pmd, lint)
-            TaskUtils.adjustTaskPriorities(lint, findbugs)
-            TaskUtils.adjustTaskPriorities(findbugs, checkstyle)
-            TaskUtils.adjustTaskPriorities(checkstyle, check)
+            check.dependsOn pmd, lint, findbugs, checkstyle
 
             // TODO assembleDebug
             // TODO assembleRelease
