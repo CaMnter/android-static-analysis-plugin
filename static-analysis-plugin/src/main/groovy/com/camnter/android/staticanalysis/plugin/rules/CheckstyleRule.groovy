@@ -22,7 +22,7 @@ package com.camnter.android.staticanalysis.plugin.rules
 
 class CheckstyleRule {
 
-    def config =
+    static def CONFIG =
             """<?xml version="1.0"?>
 <!DOCTYPE module PUBLIC
     "-//Puppy Crawl//DTD Check Configuration 1.1//EN"
@@ -459,7 +459,7 @@ class CheckstyleRule {
 
 </module>
 """
-    def suppressions =
+    static def SUPPRESSIONS =
             """<?xml version="1.0"?>
 <!DOCTYPE suppressions PUBLIC
     "-//Puppy Crawl//DTD Suppressions 1.1//EN"
@@ -475,6 +475,5 @@ class CheckstyleRule {
     <suppress checks="[a-zA-Z0-9]*" files=".*_MembersInjector.java"/>
 
 </suppressions>
-
 """
 }

@@ -48,20 +48,33 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
         // project.androidStaticAnalysis.extensions.create('email', EmailExtension)
 
         project.afterEvaluate {
-            AndroidStaticAnalysis analysis = project.androidStaticAnalysis
-            AndroidStaticAnalysis.refitAnalysis(project, analysis)
-
             def reportsDir = "${project.buildDir}/android-static-analysis"
 
+            AndroidStaticAnalysis analysis = project.androidStaticAnalysis
+            def createDefalutRulesTask = AndroidStaticAnalysis.isCreateDefaultRulesTask(analysis)
+            def rules = null
+            if (createDefalutRulesTask) {
+                rules = AnalysisTaskManager.createDefaultRulesTask(project, reportsDir, analysis)
+            }
+
+
+            AndroidStaticAnalysis.refitAnalysis(project, analysis)
             def pmd = AnalysisTaskManager.createPmdTask(project, analysis, reportsDir)
             def lint = AnalysisTaskManager.configAndroidLint(project, analysis, reportsDir)
             def findbugs = AnalysisTaskManager.createFindBugsTask(project, analysis, reportsDir)
             def checkstyle = AnalysisTaskManager.createCheckstyleTask(project, analysis,
                     reportsDir)
 
-            // ...   -> check
-            Task check = project.tasks.findByName('check')
-            check.dependsOn pmd, lint, checkstyle, findbugs
+            def check = project.tasks.findByName('check')
+            if (null != rules) {
+                // rules -> pmd
+                TaskUtils.adjustTaskPriorities(rules, pmd)
+            }
+            // pmd -> lint -> findbugs -> checkstyle -> check
+            TaskUtils.adjustTaskPriorities(pmd, lint)
+            TaskUtils.adjustTaskPriorities(lint, findbugs)
+            TaskUtils.adjustTaskPriorities(findbugs, checkstyle)
+            TaskUtils.adjustTaskPriorities(checkstyle, check)
 
             // TODO assembleDebug
             // TODO assembleRelease

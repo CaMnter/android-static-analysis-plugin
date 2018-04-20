@@ -22,7 +22,7 @@ package com.camnter.android.staticanalysis.plugin.rules
 
 class FindBugsRule {
 
-    def excludeFilter =
+    static def EXCLUDE_FILTER =
             """<?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
     <!-- http://stackoverflow.com/questions/7568579/eclipsefindbugs-exclude-filter-files-doesnt-work -->

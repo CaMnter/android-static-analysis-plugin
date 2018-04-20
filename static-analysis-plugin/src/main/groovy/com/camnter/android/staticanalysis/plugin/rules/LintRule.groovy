@@ -20,9 +20,9 @@ package com.camnter.android.staticanalysis.plugin.rules
  * @author CaMnter
  */
 
-class LineRule {
+class LintRule {
 
-    def config =
+    static def CONFIG =
             """<?xml version="1.0" encoding="UTF-8"?>
 <lint>
     <issue id="AdapterViewChildren" severity="ignore"/>

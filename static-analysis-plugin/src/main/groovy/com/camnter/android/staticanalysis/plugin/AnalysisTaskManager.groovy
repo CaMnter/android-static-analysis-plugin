@@ -18,10 +18,11 @@ package com.camnter.android.staticanalysis.plugin
 
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
-import com.camnter.android.staticanalysis.plugin.extension.AndroidStaticAnalysis
-import com.camnter.android.staticanalysis.plugin.extension.EmailExtension
+import com.camnter.android.staticanalysis.plugin.extension.*
 import com.camnter.android.staticanalysis.plugin.task.AnalysisZipTask
+import com.camnter.android.staticanalysis.plugin.task.DefaultRulesTask
 import com.camnter.android.staticanalysis.plugin.task.EmailTask
+import com.camnter.android.staticanalysis.plugin.utils.StringUtils
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Checkstyle
 import org.gradle.api.plugins.quality.FindBugs
@@ -142,20 +143,43 @@ class AnalysisTaskManager {
     static def createZipTask(Project project, String reportsDir) {
         return project.task(type: AnalysisZipTask,
                 overwrite: true, 'analysisZipTask') { AnalysisZipTask task ->
-            task.inputDir = "${reportsDir}/static-analysis-report"
-            task.zipPath = "${reportsDir}/static-analysis-report.zip"
+            task.with {
+                inputDir = "${reportsDir}/static-analysis-report"
+                zipPath = "${reportsDir}/static-analysis-report.zip"
+            }
         }
     }
 
     static def createEmailTask(Project project, String reportsDir, EmailExtension email) {
         return project.task(type: EmailTask,
                 overwrite: true, 'analysisEmailTask') { EmailTask task ->
-            task.email = email
-            task.zipPath = "${reportsDir}/static-analysis-report.zip"
-            task.htmlPaths = ["${reportsDir}/static-analysis-report/checkstyle.html",
-                              "${reportsDir}/static-analysis-report/findbugs.html",
-                              "${reportsDir}/static-analysis-report/pmd.html",
-                              "${reportsDir}/static-analysis-report/lint-result.html"]
+            task.with {
+                task.email = email
+                zipPath = "${reportsDir}/static-analysis-report.zip"
+                htmlPaths = ["${reportsDir}/static-analysis-report/checkstyle.html",
+                             "${reportsDir}/static-analysis-report/findbugs.html",
+                             "${reportsDir}/static-analysis-report/pmd.html",
+                             "${reportsDir}/static-analysis-report/lint-result.html"]
+            }
+        }
+    }
+
+    static def createDefaultRulesTask(Project project, String reportsDir,
+            AndroidStaticAnalysis analysis) {
+        PmdExtension pmd = analysis.pmd
+        LintExtension lint = analysis.lint
+        FindBugsExtension findBugs = analysis.findBugs
+        CheckstyleExtension checkstyle = analysis.checkstyle
+        return project.task(type: DefaultRulesTask,
+                overwrite: true, 'analysisDefaultRulesTask') { DefaultRulesTask task ->
+            task.with {
+                task.reportsDir = reportsDir
+                setCreateDefaultPmdRule(StringUtils.isEmpty(pmd.ruleSetFiles))
+                setCreateDefaultLintRule(StringUtils.isEmpty(lint.lintConfig))
+                setCreateDefaultFindBugsRule(StringUtils.isEmpty(findBugs.excludeFilter))
+                setCreateDefaultCheckstyleRule(StringUtils.isEmpty(checkstyle.configDir))
+                setCreateDefaultCheckstyleSuppressionsRule(StringUtils.isEmpty(checkstyle.suppressionsPath))
+            }
         }
     }
 }

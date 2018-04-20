@@ -54,27 +54,6 @@ class AndroidStaticAnalysis {
         refitCheckstyleExtension(baseConfigDir, analysis.checkstyle)
     }
 
-    static def refitCheckstyleExtension(String baseConfigDir, CheckstyleExtension checkstyle) {
-        checkstyle.with {
-            if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_CHECKSTYLE_VERSION
-            if (StringUtils.isEmpty(configDir)) {
-                configDir = "$baseConfigDir/checkstyle/checkstyle.xml"
-            }
-            if (StringUtils.isEmpty(suppressionsPath)) {
-                suppressionsPath = "$baseConfigDir/checkstyle/suppressions.xml"
-            }
-        }
-    }
-
-    static def refitFindBugsExtension(String baseConfigDir, FindBugsExtension findBugs) {
-        findBugs.with {
-            if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_FINDBUGS_VERSION
-            if (StringUtils.isEmpty(excludeFilter)) {
-                excludeFilter = "$baseConfigDir/findbugs/findbugs-filter.xml"
-            }
-        }
-    }
-
     static def refitPmdExtension(String baseConfigDir, PmdExtension pmd) {
         pmd.with {
             if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_PMD_VERSION
@@ -88,5 +67,37 @@ class AndroidStaticAnalysis {
         lint.with {
             if (StringUtils.isEmpty(lintConfig)) lintConfig = "$baseConfigDir/lint/lint.xml"
         }
+    }
+
+    static def refitFindBugsExtension(String baseConfigDir, FindBugsExtension findBugs) {
+        findBugs.with {
+            if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_FINDBUGS_VERSION
+            if (StringUtils.isEmpty(excludeFilter)) {
+                excludeFilter = "$baseConfigDir/findbugs/findbugs-filter.xml"
+            }
+        }
+    }
+
+    static def refitCheckstyleExtension(String baseConfigDir, CheckstyleExtension checkstyle) {
+        checkstyle.with {
+            if (StringUtils.isEmpty(toolVersion)) toolVersion = DEFAULT_CHECKSTYLE_VERSION
+            if (StringUtils.isEmpty(configDir)) {
+                configDir = "$baseConfigDir/checkstyle/checkstyle.xml"
+            }
+            if (StringUtils.isEmpty(suppressionsPath)) {
+                suppressionsPath = "$baseConfigDir/checkstyle/suppressions.xml"
+            }
+        }
+    }
+
+    static def isCreateDefaultRulesTask(AndroidStaticAnalysis analysis) {
+        PmdExtension pmd = analysis.pmd
+        LintExtension lint = analysis.lint
+        FindBugsExtension findBugs = analysis.findBugs
+        CheckstyleExtension checkstyle = analysis.checkstyle
+        return StringUtils.isEmpty(pmd.ruleSetFiles) || StringUtils.isEmpty(lint.lintConfig) ||
+                StringUtils.isEmpty(findBugs.excludeFilter) ||
+                StringUtils.isEmpty(checkstyle.configDir) ||
+                StringUtils.isEmpty(checkstyle.suppressionsPath)
     }
 }
