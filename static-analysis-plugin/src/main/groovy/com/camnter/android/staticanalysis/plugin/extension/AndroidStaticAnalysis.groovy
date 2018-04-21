@@ -18,7 +18,6 @@ package com.camnter.android.staticanalysis.plugin.extension
 
 import com.camnter.android.staticanalysis.plugin.task.DefaultRulesTask
 import com.camnter.android.staticanalysis.plugin.utils.StringUtils
-import org.gradle.api.Project
 
 /**
  * @author CaMnter
@@ -30,7 +29,10 @@ class AndroidStaticAnalysis {
     public static final def DEFAULT_CHECKSTYLE_VERSION = '8.8'
     public static final def DEFAULT_FINDBUGS_VERSION = '3.0.1'
 
-    static def refitAnalysis(Project project, AndroidStaticAnalysis analysis, String reportsDir) {
+    public boolean debugAnalysis = false
+    public boolean releaseAnalysis = true
+
+    static def refitAnalysis(AndroidStaticAnalysis analysis, String reportsDir) {
 
         if (analysis.pmd == null) {
             analysis.pmd = new PmdExtension()

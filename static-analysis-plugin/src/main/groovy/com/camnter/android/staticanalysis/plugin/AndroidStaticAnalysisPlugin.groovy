@@ -57,27 +57,57 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
                 rules = AnalysisTaskManager.createDefaultRulesTask(project, reportsDir, analysis)
             }
 
-            AndroidStaticAnalysis.refitAnalysis(project, analysis, reportsDir)
+            AndroidStaticAnalysis.refitAnalysis(analysis, reportsDir)
             def pmd = AnalysisTaskManager.createPmdTask(project, analysis, reportsDir)
             def lint = AnalysisTaskManager.configAndroidLint(project, analysis, reportsDir)
             def findbugs = AnalysisTaskManager.createFindBugsTask(project, analysis, reportsDir)
             def checkstyle = AnalysisTaskManager.createCheckstyleTask(project, analysis,
                     reportsDir)
 
-            def check = project.tasks.findByName('check')
-            if (null != rules) {
-                // rules -> pmd -> lint -> findbugs -> checkstyle -> check
-                TaskUtils.adjustTaskPriorities(rules, pmd)
-                TaskUtils.adjustTaskPriorities(pmd, lint)
-                TaskUtils.adjustTaskPriorities(lint, findbugs)
-                TaskUtils.adjustTaskPriorities(findbugs, checkstyle)
-                TaskUtils.adjustTaskPriorities(checkstyle, check)
-            }
-            // pmd -> lint -> findbugs -> checkstyle -> check
-            check.dependsOn pmd, lint, findbugs, checkstyle
+            def taskParcel = new TaskParcel()
+            taskParcel.rules = rules
+            taskParcel.pmd = pmd
+            taskParcel.lint = lint
+            taskParcel.findbugs = findbugs
+            taskParcel.checkstyle = checkstyle
 
-            // TODO assembleDebug
-            // TODO assembleRelease
+            def check = project.tasks.findByName('check')
+            configAnalysis(check, taskParcel)
+
+            // assembleDebug
+            if (analysis.debugAnalysis) {
+                def assembleDebug = project.tasks.findByName('assembleDebug')
+                configAnalysis(assembleDebug, taskParcel)
+            }
+
+            // assembleRelease
+            if (analysis.releaseAnalysis) {
+                def assembleRelease = project.tasks.findByName('assembleRelease')
+                configAnalysis(assembleRelease, taskParcel)
+            }
+        }
+    }
+
+    private static final class TaskParcel {
+        def rules
+        def pmd
+        def lint
+        def findbugs
+        def checkstyle
+    }
+
+    static def configAnalysis(Task target, TaskParcel taskParcel) {
+        if (null != taskParcel.rules) {
+            // rules -> pmd -> lint -> findbugs -> checkstyle -> target
+            TaskUtils.adjustTaskPriorities(taskParcel.rules, taskParcel.pmd)
+            TaskUtils.adjustTaskPriorities(taskParcel.pmd, taskParcel.lint)
+            TaskUtils.adjustTaskPriorities(taskParcel.lint, taskParcel.findbugs)
+            TaskUtils.adjustTaskPriorities(taskParcel.findbugs, taskParcel.checkstyle)
+            TaskUtils.adjustTaskPriorities(taskParcel.checkstyle, target)
+        } else {
+            // pmd -> lint -> findbugs -> checkstyle -> target
+            target.dependsOn taskParcel.pmd, taskParcel.lint, taskParcel.findbugs,
+                    taskParcel.checkstyle
         }
     }
 
