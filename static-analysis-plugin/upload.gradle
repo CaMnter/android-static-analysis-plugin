@@ -5,7 +5,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 def siteUrl = 'https://github.com/camnter/android-static-analysis-plugin'
 // #CONFIG# // project git
 def gitUrl = 'https://github.com/camnter/android-static-analysis-plugin.git'
-version = "1.0.2"
+version = "1.0.3"
 // #CONFIG# // Maven Group ID for the artifact (package name is ok)
 group = 'com.camnter.gradle.plugin'
 
