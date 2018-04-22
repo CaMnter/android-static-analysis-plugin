@@ -44,14 +44,16 @@ class EmailTask extends DefaultTask {
     @TaskAction
     void main() {
         if (!email.send) return
+        CommandUtils.chmod('/usr/local/bin/mutt')
+        CommandUtils.chmod('/usr/local/bin/msmtp')
         if (EmailExtension.HTML == email.enclosureType) {
             for (String path : htmlPaths) {
                 CommandUtils.chmod(path)
-                CommandUtils.command(EmailExtension.buildCommand(email, path)) {} {}
+                CommandUtils.mutt(EmailExtension.buildCommand(email, path))
             }
         } else if (EmailExtension.ZIP == email.enclosureType) {
             CommandUtils.chmod(zipPath)
-            CommandUtils.command(EmailExtension.buildCommand(email, zipPath)) {} {}
+            CommandUtils.mutt(EmailExtension.buildCommand(email, zipPath))
         }
     }
 }
