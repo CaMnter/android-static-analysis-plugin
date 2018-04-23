@@ -35,41 +35,42 @@ import org.gradle.api.plugins.quality.Pmd
 class AnalysisTaskManager {
 
     static def createCheckstyleTask(Project project, AndroidStaticAnalysis analysis,
-            String reportsDir) {
+            String reportsDir, String suffix) {
         VersionHooker.setCheckstyleVersion(project, analysis.checkstyle.toolVersion)
         return project.task(type: Checkstyle,
-                overwrite: false, 'staticAnalysisCheckstyle') { Checkstyle task ->
-            task.with {
-                maxErrors = analysis.checkstyle.maxErrors
-                maxWarnings = analysis.checkstyle.maxWarnings
-                configFile = project.file(analysis.checkstyle.configDir)
-                configProperties.checkstyleSuppressionsPath =
-                        project.file(analysis.checkstyle.suppressionsPath).absolutePath
-                source = 'src'
-                include('**/*.java')
-                exclude('**/gen/**')
-                reports.xml.enabled = true
-                reports.html.enabled = true
-                reports.with {
-                    xml.enabled = false
-                    html.enabled = true
-                    xml.with {
-                        destination = "$reportsDir/static-analysis-report/checkstyle.xml"
+                overwrite: false, "staticAnalysisCheckstyle${suffix.capitalize()}") {
+            Checkstyle task ->
+                task.with {
+                    maxErrors = analysis.checkstyle.maxErrors
+                    maxWarnings = analysis.checkstyle.maxWarnings
+                    configFile = project.file(analysis.checkstyle.configDir)
+                    configProperties.checkstyleSuppressionsPath =
+                            project.file(analysis.checkstyle.suppressionsPath).absolutePath
+                    source = 'src'
+                    include('**/*.java')
+                    exclude('**/gen/**')
+                    reports.xml.enabled = true
+                    reports.html.enabled = true
+                    reports.with {
+                        xml.enabled = false
+                        html.enabled = true
+                        xml.with {
+                            destination = "$reportsDir/static-analysis-report/checkstyle.xml"
+                        }
+                        html.with {
+                            destination = "$reportsDir/static-analysis-report/checkstyle.html"
+                        }
                     }
-                    html.with {
-                        destination = "$reportsDir/static-analysis-report/checkstyle.html"
-                    }
+                    classpath = project.files()
                 }
-                classpath = project.files()
-            }
         }
     }
 
     static def createFindBugsTask(Project project, AndroidStaticAnalysis analysis,
-            String reportsDir) {
+            String reportsDir, String suffix) {
         VersionHooker.setFindBugsVersion(project, analysis.findBugs.toolVersion)
         def findBugsTask = project.task(type: FindBugs,
-                overwrite: true, 'staticAnalysisFindBugs') { FindBugs task ->
+                overwrite: true, "staticAnalysisFindBugs${suffix.capitalize()}") { FindBugs task ->
             task.with {
                 ignoreFailures = analysis.findBugs.ignoreFailures
                 effort = analysis.findBugs.effort
@@ -97,10 +98,11 @@ class AnalysisTaskManager {
         return findBugsTask
     }
 
-    static def createPmdTask(Project project, AndroidStaticAnalysis analysis, String reportsDir) {
+    static def createPmdTask(Project project, AndroidStaticAnalysis analysis, String reportsDir,
+            String suffix) {
         VersionHooker.setPmsVersion(project, analysis.pmd.toolVersion)
         return project.task(type: Pmd,
-                overwrite: true, 'staticAnalysisPmd') { Pmd task ->
+                overwrite: true, "staticAnalysisPmd${suffix.capitalize()}") { Pmd task ->
             task.with {
                 ignoreFailures = analysis.pmd.ignoreFailures
                 ruleSetFiles = project.files(analysis.pmd.ruleSetFiles)
@@ -140,9 +142,9 @@ class AnalysisTaskManager {
         return project.tasks.findByName('lint')
     }
 
-    static def createZipTask(Project project, String reportsDir) {
+    static def createZipTask(Project project, String reportsDir, String suffix) {
         return project.task(type: AnalysisZipTask,
-                overwrite: true, 'analysisZipTask') { AnalysisZipTask task ->
+                overwrite: true, "analysisZip${suffix.capitalize()}") { AnalysisZipTask task ->
             task.with {
                 inputDir = "${reportsDir}/static-analysis-report"
                 zipPath = "${reportsDir}/static-analysis-report.zip"
@@ -150,9 +152,10 @@ class AnalysisTaskManager {
         }
     }
 
-    static def createEmailTask(Project project, String reportsDir, EmailExtension email) {
+    static def createEmailTask(Project project, String reportsDir, EmailExtension email,
+            String suffix) {
         return project.task(type: EmailTask,
-                overwrite: true, 'analysisEmailTask') { EmailTask task ->
+                overwrite: true, "analysisEmail${suffix.capitalize()}") { EmailTask task ->
             task.with {
                 task.email = email
                 zipPath = "${reportsDir}/static-analysis-report.zip"
@@ -165,21 +168,23 @@ class AnalysisTaskManager {
     }
 
     static def createDefaultRulesTask(Project project, String reportsDir,
-            AndroidStaticAnalysis analysis) {
+            AndroidStaticAnalysis analysis, String suffix) {
         PmdExtension pmd = analysis.pmd
         LintExtension lint = analysis.lint
         FindBugsExtension findBugs = analysis.findBugs
         CheckstyleExtension checkstyle = analysis.checkstyle
         return project.task(type: DefaultRulesTask,
-                overwrite: true, 'analysisDefaultRulesTask') { DefaultRulesTask task ->
-            task.with {
-                task.reportsDir = reportsDir
-                setCreateDefaultPmdRule(StringUtils.isEmpty(pmd.ruleSetFiles))
-                setCreateDefaultLintRule(StringUtils.isEmpty(lint.lintConfig))
-                setCreateDefaultFindBugsRule(StringUtils.isEmpty(findBugs.excludeFilter))
-                setCreateDefaultCheckstyleRule(StringUtils.isEmpty(checkstyle.configDir))
-                setCreateDefaultCheckstyleSuppressionsRule(StringUtils.isEmpty(checkstyle.suppressionsPath))
-            }
+                overwrite: true, "analysisDefaultRules${suffix.capitalize()}") {
+            DefaultRulesTask task ->
+                task.with {
+                    task.reportsDir = reportsDir
+                    setCreateDefaultPmdRule(StringUtils.isEmpty(pmd.ruleSetFiles))
+                    setCreateDefaultLintRule(StringUtils.isEmpty(lint.lintConfig))
+                    setCreateDefaultFindBugsRule(StringUtils.isEmpty(findBugs.excludeFilter))
+                    setCreateDefaultCheckstyleRule(StringUtils.isEmpty(checkstyle.configDir))
+                    setCreateDefaultCheckstyleSuppressionsRule(
+                            StringUtils.isEmpty(checkstyle.suppressionsPath))
+                }
         }
     }
 }

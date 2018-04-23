@@ -18,7 +18,6 @@ package com.camnter.android.staticanalysis.plugin
 
 import com.camnter.android.staticanalysis.plugin.extension.*
 import com.camnter.android.staticanalysis.plugin.utils.PluginUtils
-import com.camnter.android.staticanalysis.plugin.utils.TaskUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -51,80 +50,84 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
             def reportsDir = "${project.buildDir}/android-static-analysis"
 
             AndroidStaticAnalysis analysis = project.androidStaticAnalysis
+
             def createDefalutRulesTask = AndroidStaticAnalysis.isCreateDefaultRulesTask(analysis)
-            def rules = null
+            def rulesCheck = null
+            def rulesDebug = null
+            def rulesRelease = null
             if (createDefalutRulesTask) {
-                rules = AnalysisTaskManager.createDefaultRulesTask(project, reportsDir, analysis)
+                rulesCheck =
+                        AnalysisTaskManager.createDefaultRulesTask(project, reportsDir, analysis,
+                                'check')
+                rulesDebug =
+                        AnalysisTaskManager.createDefaultRulesTask(project, reportsDir, analysis,
+                                'debug')
+                rulesRelease =
+                        AnalysisTaskManager.createDefaultRulesTask(project, reportsDir, analysis,
+                                'release')
             }
 
             AndroidStaticAnalysis.refitAnalysis(analysis, reportsDir)
-            def pmd = AnalysisTaskManager.createPmdTask(project, analysis, reportsDir)
-            def lint = AnalysisTaskManager.configAndroidLint(project, analysis, reportsDir)
-            def findbugs = AnalysisTaskManager.createFindBugsTask(project, analysis, reportsDir)
-            def checkstyle = AnalysisTaskManager.createCheckstyleTask(project, analysis,
-                    reportsDir)
 
-            def taskParcel = new TaskParcel()
-            taskParcel.rules = rules
-            taskParcel.pmd = pmd
-            taskParcel.lint = lint
-            taskParcel.findbugs = findbugs
-            taskParcel.checkstyle = checkstyle
-
+            // check
             def check = project.tasks.findByName('check')
-            configAnalysis(check, taskParcel)
+            configAnalysis(project, check, analysis, rulesCheck, reportsDir, 'check')
 
             // assembleDebug
             if (analysis.debugAnalysis) {
                 def assembleDebug = project.tasks.findByName('assembleDebug')
-                configAnalysis(assembleDebug, taskParcel)
+                configAnalysis(project, assembleDebug, analysis, rulesDebug, reportsDir, 'debug')
             }
 
             // assembleRelease
             if (analysis.releaseAnalysis) {
                 def assembleRelease = project.tasks.findByName('assembleRelease')
-                configAnalysis(assembleRelease, taskParcel)
+                configAnalysis(project, assembleRelease, analysis, rulesRelease, reportsDir,
+                        'release')
             }
         }
     }
 
-    private static final class TaskParcel {
-        def rules
-        def pmd
-        def lint
-        def findbugs
-        def checkstyle
-    }
+    static def configAnalysis(Project project, Task target, AndroidStaticAnalysis analysis,
+            Task rules,
+            String reportsDir, String suffix) {
+        def pmd = AnalysisTaskManager.createPmdTask(project, analysis, reportsDir, suffix)
+        def lint = AnalysisTaskManager.configAndroidLint(project, analysis, reportsDir)
+        def findbugs = AnalysisTaskManager.createFindBugsTask(project, analysis, reportsDir, suffix)
+        def checkstyle = AnalysisTaskManager.createCheckstyleTask(project, analysis,
+                reportsDir, suffix)
 
-    static def configAnalysis(Task target, TaskParcel taskParcel) {
-        if (null != taskParcel.rules) {
+        if (null != rules) {
             // rules -> pmd -> lint -> findbugs -> checkstyle -> target
-            TaskUtils.adjustTaskPriorities(taskParcel.rules, taskParcel.pmd)
-            TaskUtils.adjustTaskPriorities(taskParcel.pmd, taskParcel.lint)
-            TaskUtils.adjustTaskPriorities(taskParcel.lint, taskParcel.findbugs)
-            TaskUtils.adjustTaskPriorities(taskParcel.findbugs, taskParcel.checkstyle)
-            TaskUtils.adjustTaskPriorities(taskParcel.checkstyle, target)
+            pmd.dependsOn rules
+            lint.dependsOn pmd
+            findbugs.dependsOn lint
+            checkstyle.dependsOn findbugs
+            target.dependsOn checkstyle
         } else {
             // pmd -> lint -> findbugs -> checkstyle -> target
-            target.dependsOn taskParcel.pmd, taskParcel.lint, taskParcel.findbugs,
-                    taskParcel.checkstyle
+            lint.dependsOn pmd
+            findbugs.dependsOn lint
+            checkstyle.dependsOn findbugs
+            target.dependsOn checkstyle
         }
     }
 
-    def configEmail(Project project, String reportsDir, Task check) {
-        if (analysis.email != null && analysis.email.send) {
-            if (EmailExtension.ZIP == analysis.email.enclosureType) {
-                def zip = AnalysisTaskManager.createZipTask(project, reportsDir)
+    def configEmail(Project project, Task check, EmailExtension emailExtension, String reportsDir,
+            String suffix) {
+        if (emailExtension != null && emailExtension.send) {
+            if (EmailExtension.ZIP == emailExtension.enclosureType) {
+                def zip = AnalysisTaskManager.createZipTask(project, reportsDir, suffix)
                 def email = AnalysisTaskManager.createEmailTask(project, reportsDir,
-                        analysis.email)
+                        analysis.email, suffix)
                 // ... -> check -> zip -> email
-                TaskUtils.adjustTaskPriorities(check, zip)
-                TaskUtils.adjustTaskPriorities(zip, email)
+                zip.dependsOn check
+                email.dependsOn zip
             } else if (EmailExtension.HTML == analysis.email.enclosureType) {
                 def email = AnalysisTaskManager.createEmailTask(project, reportsDir,
-                        analysis.email)
+                        emailExtension, suffix)
                 // ... -> check -> email
-                TaskUtils.adjustTaskPriorities(check, email)
+                email.dependsOn check
             }
         }
     }

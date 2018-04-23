@@ -17,6 +17,7 @@
 package com.camnter.android.staticanalysis.plugin.extension
 
 import com.camnter.android.staticanalysis.plugin.utils.StringUtils
+import com.google.common.io.ByteStreams
 
 /**
  * @author CaMnter
