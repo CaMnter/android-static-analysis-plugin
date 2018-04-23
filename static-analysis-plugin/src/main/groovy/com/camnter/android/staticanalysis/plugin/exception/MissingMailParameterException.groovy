@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package com.camnter.android.staticanalysis.plugin.extension
+package com.camnter.android.staticanalysis.plugin.exception
 
 /**
  * @author CaMnter
  */
 
-class EmailExtension {
+class MissingMailParameterException {
 
-    public static final def ZIP = 'zip'
-    public static final def HTML = 'html'
+    MissingMailParameterException(Where where, String parameter) {
+        super("In ${where.name()}, ${parameter} is missing")
+    }
 
-    public boolean send = false
-    public String theme = ''
-    public String content = ''
-    public String receivers = ''
-    public String carbonCopy = ''
-    // html or zip
-    public String enclosureType = 'html'
+    public enum Where {
+        LOCAL("local.properties"), EXTENSION("email{...}")
 
+        String where
+
+        public When(String where) {
+            this.where = where
+        }
+    }
 }

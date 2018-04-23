@@ -16,12 +16,19 @@
 
 package com.camnter.android.staticanalysis.plugin.task
 
+import com.camnter.android.staticanalysis.plugin.exception.MissingMailParameterException
 import com.camnter.android.staticanalysis.plugin.extension.EmailExtension
-import com.camnter.android.staticanalysis.plugin.utils.CommandUtils
+import com.camnter.android.staticanalysis.plugin.utils.StringUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+
+import javax.mail.Message
+import javax.mail.Session
+import javax.mail.Transport
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeMessage
 
 /**
  * @author CaMnter
@@ -44,16 +51,80 @@ class EmailTask extends DefaultTask {
     @TaskAction
     void main() {
         if (!email.send) return
-        CommandUtils.chmod('/usr/local/bin/mutt')
-        CommandUtils.chmod('/usr/local/bin/msmtp')
         if (EmailExtension.HTML == email.enclosureType) {
             for (String path : htmlPaths) {
-                CommandUtils.chmod(path)
-                CommandUtils.mutt(EmailExtension.buildCommand(email, path))
+                sendHtmlEmail(email, path)
             }
         } else if (EmailExtension.ZIP == email.enclosureType) {
-            CommandUtils.chmod(zipPath)
-            CommandUtils.mutt(EmailExtension.buildCommand(email, zipPath))
+            // TODO
         }
+    }
+
+    def sendHtmlEmail(EmailExtension email, String htmlPath) {
+        try {
+            if (StringUtils.isEmpty(email.receivers)) {
+                throw MissingMailParameterException(MissingMailParameterException.Where.EXTENSION,
+                        'receivers')
+            }
+
+            // html check
+            File htmlFile = new File(htmlPath)
+            if (!htmlFile.exists()) {
+                printf "%-29s = %s\n",
+                        ['[EmailTask]   [sendHtmlEmail]', "${htmlFile} was not found"]
+                return
+            }
+
+            def smtpMap = loadLocalProperties()
+            def smtpHost = smtpMap.smtpHost
+            def smtpUser = smtpMap.smtpUser
+            def smtpPassword = smtpMap.smtpPassword
+
+            Properties properties = System.getProperties()
+            properties.setProperty("mail.smtp.host", smtpHost)
+            properties.setProperty("mail.smtp.user", smtpUser)
+            properties.setProperty("mail.smtp.password", smtpPassword)
+            properties.setProperty("mail.smtp.auth", "true")
+            Session session = Session.getDefaultInstance(properties)
+            MimeMessage message = new MimeMessage(session)
+            message.setFrom(new InternetAddress(smtpUser))
+            message.addRecipient(Message.RecipientType.TO,
+                    new InternetAddress(email.receivers))
+            if (!StringUtils.isEmpty(email.carbonCopy)) {
+                message.addRecipient(Message.RecipientType.CC,
+                        new InternetAddress(email.carbonCopy))
+            }
+            message.setSubject(email.theme)
+
+            StringBuilder builder = new StringBuilder()
+            htmlFile.eachLine { String line -> builder.append(line) }
+            message.setContent(builder.toString(), "text/html")
+            Transport.send(message, smtpUser, smtpPassword)
+            printf "%-29s = %s\n",
+                    ['[EmailTask]   [sendHtmlEmail]', "${htmlFile}"]
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+    }
+
+    def loadLocalProperties() {
+        Properties localProperties = new Properties()
+        localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+        def smtpHost = localProperties.getProperty('asap.smtpHost')
+        def smtpUser = localProperties.getProperty('asap.smtpUser')
+        def smtpPassword = localProperties.getProperty('asap.smtpPassword')
+        if (StringUtils.isEmpty(smtpHost)) {
+            throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
+                    'asap.smtpHost')
+        }
+        if (StringUtils.isEmpty(smtpUser)) {
+            throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
+                    'asap.smtpUser')
+        }
+        if (StringUtils.isEmpty(smtpPassword)) {
+            throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
+                    'asap.smtpPassword')
+        }
+        return [smtpHost: smtpHost, smtpUser: smtpUser, smtpPassword: smtpPassword]
     }
 }

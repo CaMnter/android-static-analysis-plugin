@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package com.camnter.android.staticanalysis.plugin.extension
+
+package com.camnter.android.staticanalysis.plugin.utils
+
+import org.gradle.api.Task
 
 /**
  * @author CaMnter
  */
 
-class EmailExtension {
+class TaskUtils {
 
-    public static final def ZIP = 'zip'
-    public static final def HTML = 'html'
-
-    public boolean send = false
-    public String theme = ''
-    public String content = ''
-    public String receivers = ''
-    public String carbonCopy = ''
-    // html or zip
-    public String enclosureType = 'html'
+    static def adjustTaskPriorities(Task highPriorityTask, Task lowPriorityTask) {
+        lowPriorityTask.dependsOn(highPriorityTask)
+        lowPriorityTask.mustRunAfter(highPriorityTask)
+        highPriorityTask.finalizedBy(lowPriorityTask)
+    }
 
 }

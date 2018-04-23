@@ -18,6 +18,7 @@ package com.camnter.android.staticanalysis.plugin
 
 import com.camnter.android.staticanalysis.plugin.extension.*
 import com.camnter.android.staticanalysis.plugin.utils.PluginUtils
+import com.camnter.android.staticanalysis.plugin.utils.TaskUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -44,7 +45,7 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
         project.androidStaticAnalysis.extensions.create('lint', LintExtension)
         project.androidStaticAnalysis.extensions.create('findBugs', FindBugsExtension)
         project.androidStaticAnalysis.extensions.create('checkstyle', CheckstyleExtension)
-        // project.androidStaticAnalysis.extensions.create('email', EmailExtension)
+        project.androidStaticAnalysis.extensions.create('email', EmailExtension)
 
         project.afterEvaluate {
             def reportsDir = "${project.buildDir}/android-static-analysis"
@@ -72,6 +73,7 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
             // check
             def check = project.tasks.findByName('check')
             configAnalysis(project, check, analysis, rulesCheck, reportsDir, 'check')
+            configEmail(project, check, analysis.email, reportsDir, 'check')
 
             // assembleDebug
             if (analysis.debugAnalysis) {
@@ -99,35 +101,36 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
 
         if (null != rules) {
             // rules -> pmd -> lint -> findbugs -> checkstyle -> target
-            pmd.dependsOn rules
-            lint.dependsOn pmd
-            findbugs.dependsOn lint
-            checkstyle.dependsOn findbugs
-            target.dependsOn checkstyle
+            TaskUtils.adjustTaskPriorities(rules, pmd)
+            TaskUtils.adjustTaskPriorities(pmd, lint)
+            TaskUtils.adjustTaskPriorities(lint, findbugs)
+            TaskUtils.adjustTaskPriorities(findbugs, checkstyle)
+            TaskUtils.adjustTaskPriorities(checkstyle, target)
         } else {
             // pmd -> lint -> findbugs -> checkstyle -> target
-            lint.dependsOn pmd
-            findbugs.dependsOn lint
-            checkstyle.dependsOn findbugs
-            target.dependsOn checkstyle
+            TaskUtils.adjustTaskPriorities(pmd, lint)
+            TaskUtils.adjustTaskPriorities(lint, findbugs)
+            TaskUtils.adjustTaskPriorities(findbugs, checkstyle)
+            TaskUtils.adjustTaskPriorities(checkstyle, target)
         }
     }
 
-    def configEmail(Project project, Task check, EmailExtension emailExtension, String reportsDir,
+    static def configEmail(Project project, Task target, EmailExtension emailExtension,
+            String reportsDir,
             String suffix) {
         if (emailExtension != null && emailExtension.send) {
             if (EmailExtension.ZIP == emailExtension.enclosureType) {
                 def zip = AnalysisTaskManager.createZipTask(project, reportsDir, suffix)
                 def email = AnalysisTaskManager.createEmailTask(project, reportsDir,
-                        analysis.email, suffix)
-                // ... -> check -> zip -> email
-                zip.dependsOn check
-                email.dependsOn zip
-            } else if (EmailExtension.HTML == analysis.email.enclosureType) {
+                        emailExtension, suffix)
+                // ... -> target -> zip -> email
+                TaskUtils.adjustTaskPriorities(target, zip)
+                TaskUtils.adjustTaskPriorities(zip, email)
+            } else if (EmailExtension.HTML == emailExtension.enclosureType) {
                 def email = AnalysisTaskManager.createEmailTask(project, reportsDir,
                         emailExtension, suffix)
-                // ... -> check -> email
-                email.dependsOn check
+                // ... -> target -> email
+                TaskUtils.adjustTaskPriorities(target, email)
             }
         }
     }
