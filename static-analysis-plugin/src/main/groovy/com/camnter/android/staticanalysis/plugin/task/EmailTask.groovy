@@ -42,9 +42,7 @@ class EmailTask extends DefaultTask {
     static final def SMTP_PASSWORD = 'asap.smtpPassword'
 
     static final def JAVA_MAIL_SMTP_HOST = 'mail.smtp.host'
-    static final def JAVA_MAIL_SMTP_USER = 'mail.smtp.user'
-    static final def JAVA_MAIL_SMTP_PASSWORD = 'mail.smtp.password'
-    static final def JAVA_MAIL_SMTP_AUTH = 'true'
+    static final def JAVA_MAIL_SMTP_AUTH = 'mail.smtp.auth'
 
     @Input
     @Optional
@@ -62,9 +60,7 @@ class EmailTask extends DefaultTask {
     void main() {
         if (!email.send) return
         if (EmailExtension.HTML == email.enclosureType) {
-            for (String path : htmlPaths) {
-                sendHtmlEmail(email, path)
-            }
+            sendHtmlEmail(email, htmlPaths)
         } else if (EmailExtension.ZIP == email.enclosureType) {
             sendEnclosureZip(email, zipPath)
         }
@@ -131,7 +127,7 @@ class EmailTask extends DefaultTask {
         }
     }
 
-    def sendHtmlEmail(EmailExtension email, String htmlPath) {
+    def sendHtmlEmail(EmailExtension email, List<String> htmlPaths) {
         try {
             if (StringUtils.isEmpty(email.receivers)) {
                 throw MissingMailParameterException(MissingMailParameterException.Where.EXTENSION,
@@ -139,12 +135,18 @@ class EmailTask extends DefaultTask {
             }
 
             // html check
-            File htmlFile = new File(htmlPath)
-            if (!htmlFile.exists()) {
-                printf "%-29s = %s\n",
-                        ['[EmailTask]   [sendHtmlEmail]', "${htmlPath} was not found"]
-                return
+            List<File> safeHtmlFiles = new ArrayList<>()
+            for (String path : htmlPaths) {
+                File htmlFile = new File(path)
+                if (!htmlFile.exists()) {
+                    printf "%-29s = %s\n",
+                            ['[EmailTask]   [sendHtmlEmail]', "${htmlFile.absolutePath} was not found"]
+                } else {
+                    safeHtmlFiles.add(htmlFile)
+                }
             }
+            if (safeHtmlFiles.size() == 0) return
+
 
             def smtpMap = loadLocalProperties()
             def smtpHost = smtpMap.smtpHost
@@ -155,29 +157,30 @@ class EmailTask extends DefaultTask {
             properties.setProperty(JAVA_MAIL_SMTP_HOST, smtpHost)
             properties.setProperty(JAVA_MAIL_SMTP_AUTH, "true")
             Session session = Session.getDefaultInstance(properties)
-            MimeMessage message = new MimeMessage(session)
-            // nickname
-            if (StringUtils.isEmpty(email.nickname)) {
-                message.setFrom(new InternetAddress(smtpUser))
-            } else {
-                InternetAddress from = new InternetAddress(MimeUtility.encodeWord(
-                        MimeUtility.encodeWord("${email.nickname}") + " <${smtpUser}>"))
-                message.setFrom(from)
+            for (File htmlFile : safeHtmlFiles) {
+                MimeMessage message = new MimeMessage(session)
+                // nickname
+                if (StringUtils.isEmpty(email.nickname)) {
+                    message.setFrom(new InternetAddress(smtpUser))
+                } else {
+                    InternetAddress from = new InternetAddress(MimeUtility.encodeWord(
+                            MimeUtility.encodeWord("${email.nickname}") + " <${smtpUser}>"))
+                    message.setFrom(from)
+                }
+                message.addRecipient(Message.RecipientType.TO,
+                        new InternetAddress(email.receivers))
+                if (!StringUtils.isEmpty(email.carbonCopy)) {
+                    message.addRecipient(Message.RecipientType.CC,
+                            new InternetAddress(email.carbonCopy))
+                }
+                message.setSubject(email.theme)
+                StringBuilder builder = new StringBuilder()
+                htmlFile.eachLine { String line -> builder.append(line) }
+                message.setContent(builder.toString(), "text/html")
+                Transport.send(message, smtpUser, smtpPassword)
+                printf "%-29s = %s\n",
+                        ['[EmailTask]   [sendHtmlEmail]', "${htmlFile.absolutePath}"]
             }
-            message.addRecipient(Message.RecipientType.TO,
-                    new InternetAddress(email.receivers))
-            if (!StringUtils.isEmpty(email.carbonCopy)) {
-                message.addRecipient(Message.RecipientType.CC,
-                        new InternetAddress(email.carbonCopy))
-            }
-            message.setSubject(email.theme)
-
-            StringBuilder builder = new StringBuilder()
-            htmlFile.eachLine { String line -> builder.append(line) }
-            message.setContent(builder.toString(), "text/html")
-            Transport.send(message, smtpUser, smtpPassword)
-            printf "%-29s = %s\n",
-                    ['[EmailTask]   [sendHtmlEmail]', "${htmlPath}"]
         } catch (Exception e) {
             e.printStackTrace()
         }
