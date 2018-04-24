@@ -26,6 +26,7 @@ class EmailExtension {
     public static final def HTML = 'html'
 
     public boolean send = false
+    public String nickname = ''
     public String theme = ''
     public String content = ''
     public String receivers = ''

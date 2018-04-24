@@ -92,15 +92,18 @@ class EmailTask extends DefaultTask {
 
             Properties properties = System.getProperties()
             properties.setProperty(JAVA_MAIL_SMTP_HOST, smtpHost)
-            properties.setProperty(JAVA_MAIL_SMTP_USER, smtpUser)
-            properties.setProperty(JAVA_MAIL_SMTP_PASSWORD, smtpPassword)
             properties.setProperty(JAVA_MAIL_SMTP_AUTH, "true")
             Session session = Session.getDefaultInstance(properties)
             MimeMessage message = new MimeMessage(session)
-            // TODO nickname
-            InternetAddress from = new InternetAddress(
-                    MimeUtility.encodeWord(MimeUtility.encodeWord("CaMnter") + " <${smtpUser}>"))
-            message.setFrom(from)
+            // nickname
+            if (StringUtils.isEmpty(email.nickname)) {
+                message.setFrom(new InternetAddress(smtpUser))
+            } else {
+                InternetAddress from = new InternetAddress(MimeUtility.encodeWord(
+                        MimeUtility.encodeWord("${email.nickname}") + " <${smtpUser}>"))
+                message.setFrom(from)
+            }
+
             message.addRecipient(Message.RecipientType.TO,
                     new InternetAddress(email.receivers))
             message.setSubject(email.theme)
@@ -150,15 +153,17 @@ class EmailTask extends DefaultTask {
 
             Properties properties = System.getProperties()
             properties.setProperty(JAVA_MAIL_SMTP_HOST, smtpHost)
-            properties.setProperty(JAVA_MAIL_SMTP_USER, smtpUser)
-            properties.setProperty(JAVA_MAIL_SMTP_PASSWORD, smtpPassword)
             properties.setProperty(JAVA_MAIL_SMTP_AUTH, "true")
             Session session = Session.getDefaultInstance(properties)
             MimeMessage message = new MimeMessage(session)
-            // TODO nickname
-            InternetAddress from = new InternetAddress(
-                    MimeUtility.encodeWord(MimeUtility.encodeWord("CaMnter") + " <${smtpUser}>"))
-            message.setFrom(from)
+            // nickname
+            if (StringUtils.isEmpty(email.nickname)) {
+                message.setFrom(new InternetAddress(smtpUser))
+            } else {
+                InternetAddress from = new InternetAddress(MimeUtility.encodeWord(
+                        MimeUtility.encodeWord("${email.nickname}") + " <${smtpUser}>"))
+                message.setFrom(from)
+            }
             message.addRecipient(Message.RecipientType.TO,
                     new InternetAddress(email.receivers))
             if (!StringUtils.isEmpty(email.carbonCopy)) {
