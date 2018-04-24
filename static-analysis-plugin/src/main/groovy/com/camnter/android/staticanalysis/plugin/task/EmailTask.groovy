@@ -43,6 +43,7 @@ class EmailTask extends DefaultTask {
 
     static final def JAVA_MAIL_SMTP_HOST = 'mail.smtp.host'
     static final def JAVA_MAIL_SMTP_AUTH = 'mail.smtp.auth'
+    static final def RECEIVERS_DIVIDE = ';'
 
     @Input
     @Optional
@@ -91,7 +92,8 @@ class EmailTask extends DefaultTask {
             properties.setProperty(JAVA_MAIL_SMTP_AUTH, "true")
             Session session = Session.getDefaultInstance(properties)
             MimeMessage message = new MimeMessage(session)
-            // nickname
+
+            // from & nickname
             if (StringUtils.isEmpty(email.nickname)) {
                 message.setFrom(new InternetAddress(smtpUser))
             } else {
@@ -100,19 +102,37 @@ class EmailTask extends DefaultTask {
                 message.setFrom(from)
             }
 
-            message.addRecipient(Message.RecipientType.TO,
-                    new InternetAddress(email.receivers))
+            // to
+            if (email.receivers.contains(RECEIVERS_DIVIDE)) {
+                String neatReceivers = StringUtils.replaceBlank(email.receivers)
+                String[] receivers = neatReceivers.split(RECEIVERS_DIVIDE)
+                InternetAddress[] addresses = new InternetAddress[receivers.length]
+                for (int i = 0; i < receivers.length; i++) {
+                    addresses[i] = new InternetAddress(receivers[i])
+                }
+                message.addRecipients(Message.RecipientType.TO, addresses)
+            } else {
+                message.addRecipient(Message.RecipientType.TO,
+                        new InternetAddress(email.receivers))
+            }
+
+            // TODO cc
+
+            // theme
             message.setSubject(email.theme)
+
             // content
             BodyPart contentbodyPart = new MimeBodyPart()
             if (!StringUtils.isEmpty(email.content)) {
                 contentbodyPart.setText(email.content + '\n\n\n\n')
             }
+
             // enclosure
             BodyPart enclosureBodyPart = new MimeBodyPart()
             DataSource source = new FileDataSource(zipFile.absolutePath)
             enclosureBodyPart.setDataHandler(new DataHandler(source))
             enclosureBodyPart.setFileName(zipFile.name)
+
             // multipart
             Multipart multipart = new MimeMultipart()
             multipart.addBodyPart(contentbodyPart)
@@ -159,7 +179,8 @@ class EmailTask extends DefaultTask {
             Session session = Session.getDefaultInstance(properties)
             for (File htmlFile : safeHtmlFiles) {
                 MimeMessage message = new MimeMessage(session)
-                // nickname
+
+                // from & nickname
                 if (StringUtils.isEmpty(email.nickname)) {
                     message.setFrom(new InternetAddress(smtpUser))
                 } else {
@@ -167,13 +188,31 @@ class EmailTask extends DefaultTask {
                             MimeUtility.encodeWord("${email.nickname}") + " <${smtpUser}>"))
                     message.setFrom(from)
                 }
-                message.addRecipient(Message.RecipientType.TO,
-                        new InternetAddress(email.receivers))
+
+                // to
+                if (email.receivers.contains(RECEIVERS_DIVIDE)) {
+                    String neatReceivers = StringUtils.replaceBlank(email.receivers)
+                    String[] receivers = neatReceivers.split(RECEIVERS_DIVIDE)
+                    InternetAddress[] addresses = new InternetAddress[receivers.length]
+                    for (int i = 0; i < receivers.length; i++) {
+                        addresses[i] = new InternetAddress(receivers[i])
+                    }
+                    message.addRecipients(Message.RecipientType.TO, addresses)
+                } else {
+                    message.addRecipient(Message.RecipientType.TO,
+                            new InternetAddress(email.receivers))
+                }
+
+                // TODO cc
                 if (!StringUtils.isEmpty(email.carbonCopy)) {
                     message.addRecipient(Message.RecipientType.CC,
                             new InternetAddress(email.carbonCopy))
                 }
+
+                // theme
                 message.setSubject(email.theme)
+
+                // content
                 StringBuilder builder = new StringBuilder()
                 htmlFile.eachLine { String line -> builder.append(line) }
                 message.setContent(builder.toString(), "text/html")

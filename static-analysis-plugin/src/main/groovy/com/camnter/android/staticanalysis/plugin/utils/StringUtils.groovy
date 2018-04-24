@@ -16,6 +16,9 @@
 
 package com.camnter.android.staticanalysis.plugin.utils
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 /**
  * @author CaMnter
  */
@@ -25,6 +28,16 @@ class StringUtils {
     static def isEmpty(String target) {
         if (target == null || target.length() == 0) return true
         return false
+    }
+
+    static String replaceBlank(String target) {
+        String dest = ""
+        if (target != null) {
+            Pattern pattern = Pattern.compile("\\s*|\t|\r|\n");
+            Matcher matcher = pattern.matcher(target)
+            dest = matcher.replaceAll("")
+        }
+        return dest
     }
 
 }
