@@ -24,17 +24,27 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
-import javax.mail.Message
-import javax.mail.Session
-import javax.mail.Transport
-import javax.mail.internet.InternetAddress
-import javax.mail.internet.MimeMessage
+import javax.activation.DataHandler
+import javax.activation.DataSource
+import javax.activation.FileDataSource
+import javax.mail.*
+import javax.mail.internet.*
 
 /**
  * @author CaMnter
  */
 
 class EmailTask extends DefaultTask {
+
+    static final def LOCAL_PROPERTIES = 'local.properties'
+    static final def SMTP_HOST = 'asap.smtpHost'
+    static final def SMTP_USER = 'asap.smtpUser'
+    static final def SMTP_PASSWORD = 'asap.smtpPassword'
+
+    static final def JAVA_MAIL_SMTP_HOST = 'mail.smtp.host'
+    static final def JAVA_MAIL_SMTP_USER = 'mail.smtp.user'
+    static final def JAVA_MAIL_SMTP_PASSWORD = 'mail.smtp.password'
+    static final def JAVA_MAIL_SMTP_AUTH = 'true'
 
     @Input
     @Optional
@@ -56,7 +66,65 @@ class EmailTask extends DefaultTask {
                 sendHtmlEmail(email, path)
             }
         } else if (EmailExtension.ZIP == email.enclosureType) {
-            // TODO
+            sendEnclosureZip(email, zipPath)
+        }
+    }
+
+    def sendEnclosureZip(EmailExtension email, String zipPath) {
+        try {
+            if (StringUtils.isEmpty(email.receivers)) {
+                throw MissingMailParameterException(MissingMailParameterException.Where.EXTENSION,
+                        'receivers')
+            }
+
+            // zip check
+            File zipFile = new File(zipPath)
+            if (!zipFile.exists()) {
+                printf "%-29s = %s\n",
+                        ['[EmailTask]   [sendEnclosureZip]', "${zipPath} was not found"]
+                return
+            }
+
+            def smtpMap = loadLocalProperties()
+            def smtpHost = smtpMap.smtpHost
+            def smtpUser = smtpMap.smtpUser
+            def smtpPassword = smtpMap.smtpPassword
+
+            Properties properties = System.getProperties()
+            properties.setProperty(JAVA_MAIL_SMTP_HOST, smtpHost)
+            properties.setProperty(JAVA_MAIL_SMTP_USER, smtpUser)
+            properties.setProperty(JAVA_MAIL_SMTP_PASSWORD, smtpPassword)
+            properties.setProperty(JAVA_MAIL_SMTP_AUTH, "true")
+            Session session = Session.getDefaultInstance(properties)
+            MimeMessage message = new MimeMessage(session)
+            // TODO nickname
+            InternetAddress from = new InternetAddress(
+                    MimeUtility.encodeWord(MimeUtility.encodeWord("CaMnter") + " <${smtpUser}>"))
+            message.setFrom(from)
+            message.addRecipient(Message.RecipientType.TO,
+                    new InternetAddress(email.receivers))
+            message.setSubject(email.theme)
+            // content
+            BodyPart contentbodyPart = new MimeBodyPart()
+            if (!StringUtils.isEmpty(email.content)) {
+                contentbodyPart.setText(email.content + '\n\n\n\n')
+            }
+            // enclosure
+            BodyPart enclosureBodyPart = new MimeBodyPart()
+            DataSource source = new FileDataSource(zipFile.absolutePath)
+            enclosureBodyPart.setDataHandler(new DataHandler(source))
+            enclosureBodyPart.setFileName(zipFile.name)
+            // multipart
+            Multipart multipart = new MimeMultipart()
+            multipart.addBodyPart(contentbodyPart)
+            multipart.addBodyPart(enclosureBodyPart)
+
+            message.setContent(multipart)
+            Transport.send(message, smtpUser, smtpPassword)
+            printf "%-32s = %s\n",
+                    ['[EmailTask]   [sendEnclosureZip]', "${zipPath}"]
+        } catch (Exception e) {
+            e.printStackTrace()
         }
     }
 
@@ -71,7 +139,7 @@ class EmailTask extends DefaultTask {
             File htmlFile = new File(htmlPath)
             if (!htmlFile.exists()) {
                 printf "%-29s = %s\n",
-                        ['[EmailTask]   [sendHtmlEmail]', "${htmlFile} was not found"]
+                        ['[EmailTask]   [sendHtmlEmail]', "${htmlPath} was not found"]
                 return
             }
 
@@ -81,13 +149,16 @@ class EmailTask extends DefaultTask {
             def smtpPassword = smtpMap.smtpPassword
 
             Properties properties = System.getProperties()
-            properties.setProperty("mail.smtp.host", smtpHost)
-            properties.setProperty("mail.smtp.user", smtpUser)
-            properties.setProperty("mail.smtp.password", smtpPassword)
-            properties.setProperty("mail.smtp.auth", "true")
+            properties.setProperty(JAVA_MAIL_SMTP_HOST, smtpHost)
+            properties.setProperty(JAVA_MAIL_SMTP_USER, smtpUser)
+            properties.setProperty(JAVA_MAIL_SMTP_PASSWORD, smtpPassword)
+            properties.setProperty(JAVA_MAIL_SMTP_AUTH, "true")
             Session session = Session.getDefaultInstance(properties)
             MimeMessage message = new MimeMessage(session)
-            message.setFrom(new InternetAddress(smtpUser))
+            // TODO nickname
+            InternetAddress from = new InternetAddress(
+                    MimeUtility.encodeWord(MimeUtility.encodeWord("CaMnter") + " <${smtpUser}>"))
+            message.setFrom(from)
             message.addRecipient(Message.RecipientType.TO,
                     new InternetAddress(email.receivers))
             if (!StringUtils.isEmpty(email.carbonCopy)) {
@@ -101,7 +172,7 @@ class EmailTask extends DefaultTask {
             message.setContent(builder.toString(), "text/html")
             Transport.send(message, smtpUser, smtpPassword)
             printf "%-29s = %s\n",
-                    ['[EmailTask]   [sendHtmlEmail]', "${htmlFile}"]
+                    ['[EmailTask]   [sendHtmlEmail]', "${htmlPath}"]
         } catch (Exception e) {
             e.printStackTrace()
         }
@@ -109,21 +180,21 @@ class EmailTask extends DefaultTask {
 
     def loadLocalProperties() {
         Properties localProperties = new Properties()
-        localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
-        def smtpHost = localProperties.getProperty('asap.smtpHost')
-        def smtpUser = localProperties.getProperty('asap.smtpUser')
-        def smtpPassword = localProperties.getProperty('asap.smtpPassword')
+        localProperties.load(project.rootProject.file(LOCAL_PROPERTIES).newDataInputStream())
+        def smtpHost = localProperties.getProperty(SMTP_HOST)
+        def smtpUser = localProperties.getProperty(SMTP_USER)
+        def smtpPassword = localProperties.getProperty(SMTP_PASSWORD)
         if (StringUtils.isEmpty(smtpHost)) {
             throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
-                    'asap.smtpHost')
+                    SMTP_HOST)
         }
         if (StringUtils.isEmpty(smtpUser)) {
             throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
-                    'asap.smtpUser')
+                    SMTP_USER)
         }
         if (StringUtils.isEmpty(smtpPassword)) {
             throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
-                    'asap.smtpPassword')
+                    SMTP_PASSWORD)
         }
         return [smtpHost: smtpHost, smtpUser: smtpUser, smtpPassword: smtpPassword]
     }
