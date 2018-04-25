@@ -16,19 +16,13 @@
 
 package com.camnter.android.staticanalysis.plugin.task
 
-import com.camnter.android.staticanalysis.plugin.exception.MissingMailParameterException
 import com.camnter.android.staticanalysis.plugin.extension.EmailExtension
-import com.camnter.android.staticanalysis.plugin.utils.StringUtils
+import com.camnter.android.staticanalysis.plugin.task.envelope.Envelope
+import com.camnter.android.staticanalysis.plugin.task.envelope.EnvelopeChainData
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
-
-import javax.activation.DataHandler
-import javax.activation.DataSource
-import javax.activation.FileDataSource
-import javax.mail.*
-import javax.mail.internet.*
 
 /**
  * @author CaMnter
@@ -69,79 +63,27 @@ class EmailTask extends DefaultTask {
 
     def sendEnclosureZip(EmailExtension email, String zipPath) {
         try {
-            if (StringUtils.isEmpty(email.receivers)) {
-                throw MissingMailParameterException(MissingMailParameterException.Where.EXTENSION,
-                        'receivers')
-            }
+            EnvelopeChainData data = new EnvelopeChainData(project)
+            data.email = email
+            data.zipPath = zipPath
 
-            // zip check
-            File zipFile = new File(zipPath)
-            if (!zipFile.exists()) {
-                printf "%-29s = %s\n",
-                        ['[EmailTask]   [sendEnclosureZip]', "${zipPath} was not found"]
-                return
-            }
+            Envelope.ReceiversCheckChain<Envelope.ZipCheckChain> receiversCheckChain = new Envelope.ReceiversCheckChain<Envelope.ZipCheckChain>(
+                    data)
+            Envelope.ZipCheckChain<Envelope.LocalPropertiesChain> zipCheckChain = new Envelope.ZipCheckChain<Envelope.LocalPropertiesChain>(
+                    data)
+            // TODO default NetEase QQ
+            Envelope.LocalPropertiesChain<Envelope.DefaultSessionChain> localPropertiesChain = new Envelope.LocalPropertiesChain<Envelope.DefaultSessionChain>(
+                    data)
+            Envelope.DefaultSessionChain<Envelope.ZipLetterChain> defaultSessionChain = new Envelope.DefaultSessionChain<Envelope.ZipLetterChain>(
+                    data)
+            Envelope.ZipLetterChain zipLetterChain = new Envelope.ZipLetterChain(data)
 
-            def smtpMap = loadLocalProperties()
-            def smtpHost = smtpMap.smtpHost
-            def smtpUser = smtpMap.smtpUser
-            def smtpPassword = smtpMap.smtpPassword
+            receiversCheckChain.next = zipCheckChain
+            zipCheckChain.next = localPropertiesChain
+            localPropertiesChain.next = defaultSessionChain
+            defaultSessionChain.next = zipLetterChain
 
-            Properties properties = System.getProperties()
-            properties.setProperty(JAVA_MAIL_SMTP_HOST, smtpHost)
-            properties.setProperty(JAVA_MAIL_SMTP_AUTH, "true")
-            Session session = Session.getDefaultInstance(properties)
-            MimeMessage message = new MimeMessage(session)
-
-            // from & nickname
-            if (StringUtils.isEmpty(email.nickname)) {
-                message.setFrom(new InternetAddress(smtpUser))
-            } else {
-                InternetAddress from = new InternetAddress(MimeUtility.encodeWord(
-                        MimeUtility.encodeWord("${email.nickname}") + " <${smtpUser}>"))
-                message.setFrom(from)
-            }
-
-            // to
-            if (email.receivers.contains(RECEIVERS_DIVIDE)) {
-                String neatReceivers = StringUtils.replaceBlank(email.receivers)
-                String[] receivers = neatReceivers.split(RECEIVERS_DIVIDE)
-                InternetAddress[] addresses = new InternetAddress[receivers.length]
-                for (int i = 0; i < receivers.length; i++) {
-                    addresses[i] = new InternetAddress(receivers[i])
-                }
-                message.addRecipients(Message.RecipientType.TO, addresses)
-            } else {
-                message.addRecipient(Message.RecipientType.TO,
-                        new InternetAddress(email.receivers))
-            }
-
-            // TODO cc
-
-            // theme
-            message.setSubject(email.theme)
-
-            // content
-            BodyPart contentbodyPart = new MimeBodyPart()
-            if (!StringUtils.isEmpty(email.content)) {
-                contentbodyPart.setText(email.content + '\n\n\n\n')
-            }
-
-            // enclosure
-            BodyPart enclosureBodyPart = new MimeBodyPart()
-            DataSource source = new FileDataSource(zipFile.absolutePath)
-            enclosureBodyPart.setDataHandler(new DataHandler(source))
-            enclosureBodyPart.setFileName(zipFile.name)
-
-            // multipart
-            Multipart multipart = new MimeMultipart()
-            multipart.addBodyPart(contentbodyPart)
-            multipart.addBodyPart(enclosureBodyPart)
-
-            message.setContent(multipart)
-            Transport.send(message, smtpUser, smtpPassword)
-            printf "%-32s = %s\n",
-                    ['[EmailTask]   [sendEnclosureZip]', "${zipPath}"]
+            receiversCheckChain.execute()
         } catch (Exception e) {
             e.printStackTrace()
         }
@@ -149,100 +91,29 @@ class EmailTask extends DefaultTask {
 
     def sendHtmlEmail(EmailExtension email, List<String> htmlPaths) {
         try {
-            if (StringUtils.isEmpty(email.receivers)) {
-                throw MissingMailParameterException(MissingMailParameterException.Where.EXTENSION,
-                        'receivers')
-            }
+            EnvelopeChainData data = new EnvelopeChainData(project)
+            data.email = email
+            data.htmlPaths = htmlPaths
 
-            // html check
-            List<File> safeHtmlFiles = new ArrayList<>()
-            for (String path : htmlPaths) {
-                File htmlFile = new File(path)
-                if (!htmlFile.exists()) {
-                    printf "%-29s = %s\n",
-                            ['[EmailTask]   [sendHtmlEmail]', "${htmlFile.absolutePath} was not found"]
-                } else {
-                    safeHtmlFiles.add(htmlFile)
-                }
-            }
-            if (safeHtmlFiles.size() == 0) return
+            Envelope.ReceiversCheckChain<Envelope.ZipCheckChain> receiversCheckChain = new Envelope.ReceiversCheckChain<Envelope.ZipCheckChain>(
+                    data)
+            Envelope.HtmlCheckChain<Envelope.LocalPropertiesChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.LocalPropertiesChain>(
+                    data)
+            // TODO default NetEase QQ
+            Envelope.LocalPropertiesChain<Envelope.DefaultSessionChain> localPropertiesChain = new Envelope.LocalPropertiesChain<Envelope.DefaultSessionChain>(
+                    data)
+            Envelope.DefaultSessionChain<Envelope.ZipLetterChain> defaultSessionChain = new Envelope.DefaultSessionChain<Envelope.ZipLetterChain>(
+                    data)
+            Envelope.HtmlLetterChain htmlLetterChain = new Envelope.HtmlLetterChain(data)
 
+            receiversCheckChain.next = htmlCheckChain
+            htmlCheckChain.next = localPropertiesChain
+            localPropertiesChain.next = defaultSessionChain
+            defaultSessionChain.next = htmlLetterChain
 
-            def smtpMap = loadLocalProperties()
-            def smtpHost = smtpMap.smtpHost
-            def smtpUser = smtpMap.smtpUser
-            def smtpPassword = smtpMap.smtpPassword
-
-            Properties properties = System.getProperties()
-            properties.setProperty(JAVA_MAIL_SMTP_HOST, smtpHost)
-            properties.setProperty(JAVA_MAIL_SMTP_AUTH, "true")
-            Session session = Session.getDefaultInstance(properties)
-            for (File htmlFile : safeHtmlFiles) {
-                MimeMessage message = new MimeMessage(session)
-
-                // from & nickname
-                if (StringUtils.isEmpty(email.nickname)) {
-                    message.setFrom(new InternetAddress(smtpUser))
-                } else {
-                    InternetAddress from = new InternetAddress(MimeUtility.encodeWord(
-                            MimeUtility.encodeWord("${email.nickname}") + " <${smtpUser}>"))
-                    message.setFrom(from)
-                }
-
-                // to
-                if (email.receivers.contains(RECEIVERS_DIVIDE)) {
-                    String neatReceivers = StringUtils.replaceBlank(email.receivers)
-                    String[] receivers = neatReceivers.split(RECEIVERS_DIVIDE)
-                    InternetAddress[] addresses = new InternetAddress[receivers.length]
-                    for (int i = 0; i < receivers.length; i++) {
-                        addresses[i] = new InternetAddress(receivers[i])
-                    }
-                    message.addRecipients(Message.RecipientType.TO, addresses)
-                } else {
-                    message.addRecipient(Message.RecipientType.TO,
-                            new InternetAddress(email.receivers))
-                }
-
-                // TODO cc
-                if (!StringUtils.isEmpty(email.carbonCopy)) {
-                    message.addRecipient(Message.RecipientType.CC,
-                            new InternetAddress(email.carbonCopy))
-                }
-
-                // theme
-                message.setSubject(email.theme)
-
-                // content
-                StringBuilder builder = new StringBuilder()
-                htmlFile.eachLine { String line -> builder.append(line) }
-                message.setContent(builder.toString(), "text/html")
-                Transport.send(message, smtpUser, smtpPassword)
-                printf "%-29s = %s\n",
-                        ['[EmailTask]   [sendHtmlEmail]', "${htmlFile.absolutePath}"]
-            }
+            receiversCheckChain.execute()
         } catch (Exception e) {
             e.printStackTrace()
         }
-    }
-
-    def loadLocalProperties() {
-        Properties localProperties = new Properties()
-        localProperties.load(project.rootProject.file(LOCAL_PROPERTIES).newDataInputStream())
-        def smtpHost = localProperties.getProperty(SMTP_HOST)
-        def smtpUser = localProperties.getProperty(SMTP_USER)
-        def smtpPassword = localProperties.getProperty(SMTP_PASSWORD)
-        if (StringUtils.isEmpty(smtpHost)) {
-            throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
-                    SMTP_HOST)
-        }
-        if (StringUtils.isEmpty(smtpUser)) {
-            throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
-                    SMTP_USER)
-        }
-        if (StringUtils.isEmpty(smtpPassword)) {
-            throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
-                    SMTP_PASSWORD)
-        }
-        return [smtpHost: smtpHost, smtpUser: smtpUser, smtpPassword: smtpPassword]
     }
 }
