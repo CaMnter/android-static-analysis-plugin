@@ -86,14 +86,14 @@ class EmailTask extends DefaultTask {
             data.email = email
             data.htmlPaths = htmlPaths
 
-            Envelope.ReceiversCheckChain<Envelope.ZipCheckChain> receiversCheckChain = new Envelope.ReceiversCheckChain<Envelope.ZipCheckChain>(
+            Envelope.ReceiversCheckChain<Envelope.HtmlCheckChain> receiversCheckChain = new Envelope.ReceiversCheckChain<Envelope.HtmlCheckChain>(
                     data)
             Envelope.HtmlCheckChain<Envelope.LocalPropertiesChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.LocalPropertiesChain>(
                     data)
             // TODO default NetEase QQ
             Envelope.LocalPropertiesChain<Envelope.DefaultSessionChain> localPropertiesChain = new Envelope.LocalPropertiesChain<Envelope.DefaultSessionChain>(
                     data)
-            Envelope.DefaultSessionChain<Envelope.ZipLetterChain> defaultSessionChain = new Envelope.DefaultSessionChain<Envelope.ZipLetterChain>(
+            Envelope.DefaultSessionChain<Envelope.HtmlLetterChain> defaultSessionChain = new Envelope.DefaultSessionChain<Envelope.HtmlLetterChain>(
                     data)
             Envelope.HtmlLetterChain htmlLetterChain = new Envelope.HtmlLetterChain(data)
 
