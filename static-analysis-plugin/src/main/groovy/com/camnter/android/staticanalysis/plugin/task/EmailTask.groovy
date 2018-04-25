@@ -30,15 +30,6 @@ import org.gradle.api.tasks.TaskAction
 
 class EmailTask extends DefaultTask {
 
-    static final def LOCAL_PROPERTIES = 'local.properties'
-    static final def SMTP_HOST = 'asap.smtpHost'
-    static final def SMTP_USER = 'asap.smtpUser'
-    static final def SMTP_PASSWORD = 'asap.smtpPassword'
-
-    static final def JAVA_MAIL_SMTP_HOST = 'mail.smtp.host'
-    static final def JAVA_MAIL_SMTP_AUTH = 'mail.smtp.auth'
-    static final def RECEIVERS_DIVIDE = ';'
-
     @Input
     @Optional
     EmailExtension email

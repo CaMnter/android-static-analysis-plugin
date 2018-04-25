@@ -221,10 +221,10 @@ interface Envelope {
      *
      * @param < C >                 C extends BaseEnvelopeChain
      */
-    static class NetEaseDefaultSessionChain<C extends BaseEnvelopeChain>
+    static class NetEaseSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
 
-        NetEaseDefaultSessionChain(EnvelopeChainData input) {
+        NetEaseSessionChain(EnvelopeChainData input) {
             super(input)
         }
 
@@ -239,10 +239,10 @@ interface Envelope {
      *
      * @param < C >                 C extends BaseEnvelopeChain
      */
-    static class QQDefaultSessionChain<C extends BaseEnvelopeChain>
+    static class QQSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
 
-        QQDefaultSessionChain(EnvelopeChainData input) {
+        QQSessionChain(EnvelopeChainData input) {
             super(input)
         }
 
@@ -257,10 +257,10 @@ interface Envelope {
      *
      * @param < C >                 C extends BaseEnvelopeChain
      */
-    static class SinaDefaultSessionChain<C extends BaseEnvelopeChain>
+    static class SinaSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
 
-        SinaDefaultSessionChain(EnvelopeChainData input) {
+        SinaSessionChain(EnvelopeChainData input) {
             super(input)
         }
 
