@@ -24,6 +24,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
+import static com.camnter.android.staticanalysis.plugin.task.envelope.Envelope.HostDispatcher.getHost
+
 /**
  * @author CaMnter
  */
@@ -45,10 +47,13 @@ class EmailTask extends DefaultTask {
     @TaskAction
     void main() {
         if (!email.send) return
-        if (EmailExtension.HTML == email.enclosureType) {
-            sendHtmlEmail(email, htmlPaths)
-        } else if (EmailExtension.ZIP == email.enclosureType) {
-            sendEnclosureZip(email, zipPath)
+        switch (email.enclosureType) {
+            case EmailExtension.ZIP:
+                sendEnclosureZip(email, zipPath)
+                break
+            case EmailExtension.HTML:
+                sendHtmlEmail(email, htmlPaths)
+                break
         }
     }
 
@@ -60,19 +65,31 @@ class EmailTask extends DefaultTask {
 
             Envelope.ReceiversCheckChain<Envelope.ZipCheckChain> receiversCheckChain = new Envelope.ReceiversCheckChain<Envelope.ZipCheckChain>(
                     data)
-            Envelope.ZipCheckChain<Envelope.LocalPropertiesChain> zipCheckChain = new Envelope.ZipCheckChain<Envelope.LocalPropertiesChain>(
-                    data)
-            // TODO default NetEase QQ
-            Envelope.LocalPropertiesChain<Envelope.DefaultSessionChain> localPropertiesChain = new Envelope.LocalPropertiesChain<Envelope.DefaultSessionChain>(
-                    data)
-            Envelope.DefaultSessionChain<Envelope.ZipLetterChain> defaultSessionChain = new Envelope.DefaultSessionChain<Envelope.ZipLetterChain>(
-                    data)
             Envelope.ZipLetterChain zipLetterChain = new Envelope.ZipLetterChain(data)
 
-            receiversCheckChain.next = zipCheckChain
-            zipCheckChain.next = localPropertiesChain
-            localPropertiesChain.next = defaultSessionChain
-            defaultSessionChain.next = zipLetterChain
+
+            switch (getHost(data)) {
+                case Envelope.HostDispatcher.Host.QQ:
+                    break
+                case Envelope.HostDispatcher.Host.NetEase:
+                    Envelope.ZipCheckChain<Envelope.NetEaseSessionChain> zipCheckChain = new Envelope.ZipCheckChain<Envelope.NetEaseSessionChain>(
+                            data)
+                    Envelope.NetEaseSessionChain<Envelope.ZipLetterChain> realSessionChain = new Envelope.NetEaseSessionChain<Envelope.ZipLetterChain>(
+                            data)
+                    receiversCheckChain.next = zipCheckChain
+                    zipCheckChain.next = realSessionChain
+                    realSessionChain.next = zipLetterChain
+                    break
+                case Envelope.HostDispatcher.Host.Other:
+                    Envelope.ZipCheckChain<Envelope.DefaultSessionChain> zipCheckChain = new Envelope.ZipCheckChain<Envelope.DefaultSessionChain>(
+                            data)
+                    Envelope.DefaultSessionChain<Envelope.ZipLetterChain> realSessionChain = new Envelope.DefaultSessionChain<Envelope.ZipLetterChain>(
+                            data)
+                    receiversCheckChain.next = zipCheckChain
+                    zipCheckChain.next = realSessionChain
+                    realSessionChain.next = zipLetterChain
+                    break
+            }
 
             receiversCheckChain.execute()
         } catch (Exception e) {
@@ -88,19 +105,31 @@ class EmailTask extends DefaultTask {
 
             Envelope.ReceiversCheckChain<Envelope.HtmlCheckChain> receiversCheckChain = new Envelope.ReceiversCheckChain<Envelope.HtmlCheckChain>(
                     data)
-            Envelope.HtmlCheckChain<Envelope.LocalPropertiesChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.LocalPropertiesChain>(
-                    data)
-            // TODO default NetEase QQ
-            Envelope.LocalPropertiesChain<Envelope.DefaultSessionChain> localPropertiesChain = new Envelope.LocalPropertiesChain<Envelope.DefaultSessionChain>(
-                    data)
-            Envelope.DefaultSessionChain<Envelope.HtmlLetterChain> defaultSessionChain = new Envelope.DefaultSessionChain<Envelope.HtmlLetterChain>(
-                    data)
+
             Envelope.HtmlLetterChain htmlLetterChain = new Envelope.HtmlLetterChain(data)
 
-            receiversCheckChain.next = htmlCheckChain
-            htmlCheckChain.next = localPropertiesChain
-            localPropertiesChain.next = defaultSessionChain
-            defaultSessionChain.next = htmlLetterChain
+            switch (getHost(data)) {
+                case Envelope.HostDispatcher.Host.QQ:
+                    break
+                case Envelope.HostDispatcher.Host.NetEase:
+                    Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain>(
+                            data)
+                    Envelope.NetEaseSessionChain<Envelope.HtmlLetterChain> realSessionChain = new Envelope.NetEaseSessionChain<Envelope.HtmlLetterChain>(
+                            data)
+                    receiversCheckChain.next = htmlCheckChain
+                    htmlCheckChain.next = realSessionChain
+                    realSessionChain.next = htmlLetterChain
+                    break
+                case Envelope.HostDispatcher.Host.Other:
+                    Envelope.HtmlCheckChain<Envelope.DefaultSessionChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain>(
+                            data)
+                    Envelope.DefaultSessionChain<Envelope.HtmlLetterChain> realSessionChain = new Envelope.DefaultSessionChain<Envelope.HtmlLetterChain>(
+                            data)
+                    receiversCheckChain.next = htmlCheckChain
+                    htmlCheckChain.next = realSessionChain
+                    realSessionChain.next = htmlLetterChain
+                    break
+            }
 
             receiversCheckChain.execute()
         } catch (Exception e) {

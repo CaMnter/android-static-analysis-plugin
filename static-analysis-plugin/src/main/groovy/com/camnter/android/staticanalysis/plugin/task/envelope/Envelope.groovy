@@ -33,6 +33,63 @@ import javax.mail.internet.*
 
 interface Envelope {
 
+    static class HostDispatcher {
+
+        static final def LOCAL_PROPERTIES = 'local.properties'
+        static final def SMTP_HOST = 'asap.smtpHost'
+        static final def SMTP_USER = 'asap.smtpUser'
+        static final def SMTP_PASSWORD = 'asap.smtpPassword'
+
+        static final String HOST_QQ = '@qq.com'
+        static final String HOST_NETEASE = '@163.com'
+
+        enum Host {
+            QQ('QQ'), NetEase('NetEase'), Other('Other')
+
+            String where
+
+            Host(String where) {
+                this.where = where
+            }
+        }
+
+        static Host getHost(EnvelopeChainData data) {
+            loadLocalProperties(data)
+            String smtpUser = data.smtpUser
+            if (smtpUser.endsWith(HOST_QQ)) {
+                return Host.QQ
+            } else if (smtpUser.endsWith(HOST_NETEASE)) {
+                return Host.NetEase
+            } else {
+                return Host.Other
+            }
+        }
+
+        static def loadLocalProperties(EnvelopeChainData data) {
+            Properties localProperties = new Properties()
+            localProperties.load(
+                    data.project.rootProject.file(LOCAL_PROPERTIES).newDataInputStream())
+            def smtpHost = localProperties.getProperty(SMTP_HOST)
+            def smtpUser = localProperties.getProperty(SMTP_USER)
+            def smtpPassword = localProperties.getProperty(SMTP_PASSWORD)
+            if (StringUtils.isEmpty(smtpHost)) {
+                throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
+                        SMTP_HOST)
+            }
+            if (StringUtils.isEmpty(smtpUser)) {
+                throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
+                        SMTP_USER)
+            }
+            if (StringUtils.isEmpty(smtpPassword)) {
+                throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
+                        SMTP_PASSWORD)
+            }
+            data.smtpHost = smtpHost
+            data.smtpUser = smtpUser
+            data.smtpPassword = smtpPassword
+        }
+    }
+
     /**
      * base action
      * */
@@ -44,7 +101,7 @@ interface Envelope {
     /**
      * base chain
      *
-     * @param < C >                                                C extends BaseEnvelopeChain
+     * @param < C >                                                               C extends BaseEnvelopeChain
      */
     static abstract class BaseEnvelopeChain<C extends BaseEnvelopeChain>
             implements EnvelopeChain {
@@ -69,7 +126,7 @@ interface Envelope {
     /**
      * receiver check chain
      *
-     * @param < C >                                               C extends BaseEnvelopeChain
+     * @param < C >                                                              C extends BaseEnvelopeChain
      */
     static class ReceiversCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -90,7 +147,7 @@ interface Envelope {
     /**
      * zip check chain
      *
-     * @param < C >                                               C extends BaseEnvelopeChain
+     * @param < C >                                                              C extends BaseEnvelopeChain
      */
     static class ZipCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -114,7 +171,7 @@ interface Envelope {
     /**
      * html check chain
      *
-     * @param < C >                                               C extends BaseEnvelopeChain
+     * @param < C >                                                              C extends BaseEnvelopeChain
      */
     static class HtmlCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -144,49 +201,6 @@ interface Envelope {
         }
     }
 
-    /**
-     * local properties chain
-     *
-     * @param < C >                                               C extends BaseEnvelopeChain
-     */
-    static class LocalPropertiesChain<C extends BaseEnvelopeChain>
-            extends BaseEnvelopeChain<C> {
-
-        static final def LOCAL_PROPERTIES = 'local.properties'
-        static final def SMTP_HOST = 'asap.smtpHost'
-        static final def SMTP_USER = 'asap.smtpUser'
-        static final def SMTP_PASSWORD = 'asap.smtpPassword'
-
-        LocalPropertiesChain(EnvelopeChainData input) {
-            super(input)
-        }
-
-        @Override
-        void duty() {
-            Properties localProperties = new Properties()
-            localProperties.load(
-                    input.project.rootProject.file(LOCAL_PROPERTIES).newDataInputStream())
-            def smtpHost = localProperties.getProperty(SMTP_HOST)
-            def smtpUser = localProperties.getProperty(SMTP_USER)
-            def smtpPassword = localProperties.getProperty(SMTP_PASSWORD)
-            if (StringUtils.isEmpty(smtpHost)) {
-                throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
-                        SMTP_HOST)
-            }
-            if (StringUtils.isEmpty(smtpUser)) {
-                throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
-                        SMTP_USER)
-            }
-            if (StringUtils.isEmpty(smtpPassword)) {
-                throw MissingMailParameterException(MissingMailParameterException.Where.LOCAL,
-                        SMTP_PASSWORD)
-            }
-            input.smtpHost = smtpHost
-            input.smtpUser = smtpUser
-            input.smtpPassword = smtpPassword
-        }
-    }
-
     static abstract class SessionChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
 
@@ -205,18 +219,18 @@ interface Envelope {
             Properties properties = this.getProperties()
             if (EmailExtension.ZIP == input.email.enclosureType) {
                 if (authenticator == null) {
-                    input.session = Session.getDefaultInstance(properties)
+                    input.session = Session.getInstance(properties)
                 } else {
-                    input.session = Session.getDefaultInstance(properties, authenticator)
+                    input.session = Session.getInstance(properties, authenticator)
                 }
             } else if (EmailExtension.HTML == input.email.enclosureType) {
                 def sessionCount = input.safeHtmlFiles.size()
                 input.sessions = new ArrayList<>(sessionCount)
                 for (int i = 0; i < sessionCount; i++) {
                     if (authenticator == null) {
-                        input.sessions.add(Session.getDefaultInstance(properties))
+                        input.sessions.add(Session.getInstance(properties))
                     } else {
-                        input.sessions.add(Session.getDefaultInstance(properties, authenticator))
+                        input.sessions.add(Session.getInstance(properties, authenticator))
                     }
                 }
             }
@@ -233,7 +247,7 @@ interface Envelope {
     /**
      * default session chain
      *
-     * @param < C >                                               C extends BaseEnvelopeChain
+     * @param < C >                                                              C extends BaseEnvelopeChain
      */
     static class DefaultSessionChain<C extends BaseEnvelopeChain>
             extends SessionChain<C> {
@@ -251,7 +265,7 @@ interface Envelope {
     /**
      * NetEase session chain
      *
-     * @param < C >                                               C extends BaseEnvelopeChain
+     * @param < C >                                                              C extends BaseEnvelopeChain
      */
     static class NetEaseSessionChain<C extends BaseEnvelopeChain>
             extends SessionChain<C> {
@@ -263,14 +277,19 @@ interface Envelope {
         @Override
         Authenticator getAuthenticator() {
             // NetEase smtp
-            return new PasswordAuthentication(input.smtpUser, input.smtpPassword)
+            return new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return PasswordAuthentication(input.smtpUser, input.smtpPassword)
+                }
+            }
         }
     }
 
     /**
      * QQ session chain
      *
-     * @param < C >                                               C extends BaseEnvelopeChain
+     * @param < C >                                                              C extends BaseEnvelopeChain
      */
     static class QQSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
@@ -288,7 +307,7 @@ interface Envelope {
     /**
      * Sina session chain
      *
-     * @param < C >                                               C extends BaseEnvelopeChain
+     * @param < C >                                                              C extends BaseEnvelopeChain
      */
     static class SinaSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
@@ -306,7 +325,7 @@ interface Envelope {
     /**
      * zip letter session chain
      *
-     * @param < C >                                               C extends BaseEnvelopeChain
+     * @param < C >                                                              C extends BaseEnvelopeChain
      */
     static class ZipLetterChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -386,7 +405,7 @@ interface Envelope {
     /**
      * html letter session chain
      *
-     * @param < C >                                               C extends BaseEnvelopeChain
+     * @param < C >                                                              C extends BaseEnvelopeChain
      */
     static class HtmlLetterChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {

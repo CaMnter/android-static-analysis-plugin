@@ -119,18 +119,21 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
             String reportsDir,
             String suffix) {
         if (emailExtension != null && emailExtension.send) {
-            if (EmailExtension.ZIP == emailExtension.enclosureType) {
-                def zip = AnalysisTaskManager.createZipTask(project, reportsDir, suffix)
-                def email = AnalysisTaskManager.createEmailTask(project, reportsDir,
-                        emailExtension, suffix)
-                // ... -> target -> zip -> email
-                TaskUtils.adjustTaskPriorities(target, zip)
-                TaskUtils.adjustTaskPriorities(zip, email)
-            } else if (EmailExtension.HTML == emailExtension.enclosureType) {
-                def email = AnalysisTaskManager.createEmailTask(project, reportsDir,
-                        emailExtension, suffix)
-                // ... -> target -> email
-                TaskUtils.adjustTaskPriorities(target, email)
+            switch (emailExtension.enclosureType) {
+                case EmailExtension.ZIP:
+                    def zip = AnalysisTaskManager.createZipTask(project, reportsDir, suffix)
+                    def email = AnalysisTaskManager.createEmailTask(project, reportsDir,
+                            emailExtension, suffix)
+                    // ... -> target -> zip -> email
+                    TaskUtils.adjustTaskPriorities(target, zip)
+                    TaskUtils.adjustTaskPriorities(zip, email)
+                    break
+                case EmailExtension.HTML:
+                    def email = AnalysisTaskManager.createEmailTask(project, reportsDir,
+                            emailExtension, suffix)
+                    // ... -> target -> email
+                    TaskUtils.adjustTaskPriorities(target, email)
+                    break
             }
         }
     }
