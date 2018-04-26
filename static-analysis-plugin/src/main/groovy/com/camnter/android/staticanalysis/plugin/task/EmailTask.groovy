@@ -24,6 +24,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
+import static com.camnter.android.staticanalysis.plugin.task.envelope.Envelope.HostDispatcher.Host.*
 import static com.camnter.android.staticanalysis.plugin.task.envelope.Envelope.HostDispatcher.getHost
 
 /**
@@ -69,9 +70,9 @@ class EmailTask extends DefaultTask {
 
 
             switch (getHost(data)) {
-                case Envelope.HostDispatcher.Host.QQ:
+                case QQ:
                     break
-                case Envelope.HostDispatcher.Host.NetEase:
+                case NetEase:
                     Envelope.ZipCheckChain<Envelope.NetEaseSessionChain> zipCheckChain = new Envelope.ZipCheckChain<Envelope.NetEaseSessionChain>(
                             data)
                     Envelope.NetEaseSessionChain<Envelope.ZipLetterChain> realSessionChain = new Envelope.NetEaseSessionChain<Envelope.ZipLetterChain>(
@@ -80,7 +81,7 @@ class EmailTask extends DefaultTask {
                     zipCheckChain.next = realSessionChain
                     realSessionChain.next = zipLetterChain
                     break
-                case Envelope.HostDispatcher.Host.Other:
+                case Other:
                     Envelope.ZipCheckChain<Envelope.DefaultSessionChain> zipCheckChain = new Envelope.ZipCheckChain<Envelope.DefaultSessionChain>(
                             data)
                     Envelope.DefaultSessionChain<Envelope.ZipLetterChain> realSessionChain = new Envelope.DefaultSessionChain<Envelope.ZipLetterChain>(
@@ -109,9 +110,9 @@ class EmailTask extends DefaultTask {
             Envelope.HtmlLetterChain htmlLetterChain = new Envelope.HtmlLetterChain(data)
 
             switch (getHost(data)) {
-                case Envelope.HostDispatcher.Host.QQ:
+                case QQ:
                     break
-                case Envelope.HostDispatcher.Host.NetEase:
+                case NetEase:
                     Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain>(
                             data)
                     Envelope.NetEaseSessionChain<Envelope.HtmlLetterChain> realSessionChain = new Envelope.NetEaseSessionChain<Envelope.HtmlLetterChain>(
@@ -120,7 +121,7 @@ class EmailTask extends DefaultTask {
                     htmlCheckChain.next = realSessionChain
                     realSessionChain.next = htmlLetterChain
                     break
-                case Envelope.HostDispatcher.Host.Other:
+                case Other:
                     Envelope.HtmlCheckChain<Envelope.DefaultSessionChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain>(
                             data)
                     Envelope.DefaultSessionChain<Envelope.HtmlLetterChain> realSessionChain = new Envelope.DefaultSessionChain<Envelope.HtmlLetterChain>(
