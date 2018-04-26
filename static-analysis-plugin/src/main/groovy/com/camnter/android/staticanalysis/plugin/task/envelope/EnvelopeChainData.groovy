@@ -30,13 +30,16 @@ class EnvelopeChainData {
     final Project project
 
     EmailExtension email
+
     String smtpHost
     String smtpUser
     String smtpPassword
-    Session session
 
-    String zipPath
+    Session session
+    List<Session> sessions
+
     File zipFile
+    String zipPath
 
     List<String> htmlPaths
     List<File> safeHtmlFiles

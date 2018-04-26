@@ -44,7 +44,7 @@ interface Envelope {
     /**
      * base chain
      *
-     * @param < C >                  C extends BaseEnvelopeChain
+     * @param < C >                      C extends BaseEnvelopeChain
      */
     static abstract class BaseEnvelopeChain<C extends BaseEnvelopeChain>
             implements EnvelopeChain {
@@ -69,7 +69,7 @@ interface Envelope {
     /**
      * receiver check chain
      *
-     * @param < C >                 C extends BaseEnvelopeChain
+     * @param < C >                     C extends BaseEnvelopeChain
      */
     static class ReceiversCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -90,7 +90,7 @@ interface Envelope {
     /**
      * zip check chain
      *
-     * @param < C >                 C extends BaseEnvelopeChain
+     * @param < C >                     C extends BaseEnvelopeChain
      */
     static class ZipCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -114,7 +114,7 @@ interface Envelope {
     /**
      * html check chain
      *
-     * @param < C >                 C extends BaseEnvelopeChain
+     * @param < C >                     C extends BaseEnvelopeChain
      */
     static class HtmlCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -147,7 +147,7 @@ interface Envelope {
     /**
      * local properties chain
      *
-     * @param < C >                 C extends BaseEnvelopeChain
+     * @param < C >                     C extends BaseEnvelopeChain
      */
     static class LocalPropertiesChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -190,7 +190,7 @@ interface Envelope {
     /**
      * default session chain
      *
-     * @param < C >                 C extends BaseEnvelopeChain
+     * @param < C >                     C extends BaseEnvelopeChain
      */
     static class DefaultSessionChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -205,7 +205,15 @@ interface Envelope {
         @Override
         void duty() {
             Properties properties = this.getProperties()
-            input.session = Session.getDefaultInstance(properties)
+            if (EmailExtension.ZIP == input.email.enclosureType) {
+                input.session = Session.getDefaultInstance(properties)
+            } else if (EmailExtension.HTML == input.email.enclosureType) {
+                def sessionCount = input.safeHtmlFiles.size()
+                input.sessions = new ArrayList<>(sessionCount)
+                for (int i = 0; i < sessionCount; i++) {
+                    input.sessions.add(Session.getDefaultInstance(properties))
+                }
+            }
         }
 
         Properties getProperties() {
@@ -219,7 +227,7 @@ interface Envelope {
     /**
      * NetEase session chain
      *
-     * @param < C >                 C extends BaseEnvelopeChain
+     * @param < C >                     C extends BaseEnvelopeChain
      */
     static class NetEaseSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
@@ -237,7 +245,7 @@ interface Envelope {
     /**
      * QQ session chain
      *
-     * @param < C >                 C extends BaseEnvelopeChain
+     * @param < C >                     C extends BaseEnvelopeChain
      */
     static class QQSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
@@ -255,7 +263,7 @@ interface Envelope {
     /**
      * Sina session chain
      *
-     * @param < C >                 C extends BaseEnvelopeChain
+     * @param < C >                     C extends BaseEnvelopeChain
      */
     static class SinaSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
@@ -273,7 +281,7 @@ interface Envelope {
     /**
      * zip letter session chain
      *
-     * @param < C >                 C extends BaseEnvelopeChain
+     * @param < C >                     C extends BaseEnvelopeChain
      */
     static class ZipLetterChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -353,7 +361,7 @@ interface Envelope {
     /**
      * html letter session chain
      *
-     * @param < C >                 C extends BaseEnvelopeChain
+     * @param < C >                     C extends BaseEnvelopeChain
      */
     static class HtmlLetterChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -367,12 +375,15 @@ interface Envelope {
         @Override
         void duty() {
             EmailExtension email = input.email
-            Session session = input.session
+            List<Session> sessions = input.sessions
             String smtpUser = input.smtpUser
             String smtpPassword = input.smtpPassword
             List<File> safeHtmlFiles = input.safeHtmlFiles
 
-            for (File htmlFile : safeHtmlFiles) {
+            for (int i = 0; i < safeHtmlFiles.size(); i++) {
+                File htmlFile = safeHtmlFiles.get(i)
+                Session session = sessions.get(i)
+
                 MimeMessage message = new MimeMessage(session)
 
                 // from & nickname
@@ -389,8 +400,8 @@ interface Envelope {
                     String neatReceivers = StringUtils.replaceBlank(email.receivers)
                     String[] receivers = neatReceivers.split(RECEIVERS_DIVIDE)
                     InternetAddress[] addresses = new InternetAddress[receivers.length]
-                    for (int i = 0; i < receivers.length; i++) {
-                        addresses[i] = new InternetAddress(receivers[i])
+                    for (int j = 0; j < receivers.length; j++) {
+                        addresses[j] = new InternetAddress(receivers[j])
                     }
                     message.addRecipients(Message.RecipientType.TO, addresses)
                 } else {
@@ -408,7 +419,6 @@ interface Envelope {
                 message.setSubject(email.theme)
 
                 // content
-                // TODO fix Lost letters? Because of the fast
                 StringBuilder builder = new StringBuilder()
                 htmlFile.eachLine { String line -> builder.append(line) }
                 message.setContent(builder.toString(), "text/html")
