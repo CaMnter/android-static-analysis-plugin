@@ -44,7 +44,7 @@ interface Envelope {
     /**
      * base chain
      *
-     * @param < C >                      C extends BaseEnvelopeChain
+     * @param < C >                                                C extends BaseEnvelopeChain
      */
     static abstract class BaseEnvelopeChain<C extends BaseEnvelopeChain>
             implements EnvelopeChain {
@@ -69,7 +69,7 @@ interface Envelope {
     /**
      * receiver check chain
      *
-     * @param < C >                     C extends BaseEnvelopeChain
+     * @param < C >                                               C extends BaseEnvelopeChain
      */
     static class ReceiversCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -90,7 +90,7 @@ interface Envelope {
     /**
      * zip check chain
      *
-     * @param < C >                     C extends BaseEnvelopeChain
+     * @param < C >                                               C extends BaseEnvelopeChain
      */
     static class ZipCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -114,7 +114,7 @@ interface Envelope {
     /**
      * html check chain
      *
-     * @param < C >                     C extends BaseEnvelopeChain
+     * @param < C >                                               C extends BaseEnvelopeChain
      */
     static class HtmlCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -147,7 +147,7 @@ interface Envelope {
     /**
      * local properties chain
      *
-     * @param < C >                     C extends BaseEnvelopeChain
+     * @param < C >                                               C extends BaseEnvelopeChain
      */
     static class LocalPropertiesChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -187,31 +187,37 @@ interface Envelope {
         }
     }
 
-    /**
-     * default session chain
-     *
-     * @param < C >                     C extends BaseEnvelopeChain
-     */
-    static class DefaultSessionChain<C extends BaseEnvelopeChain>
+    static abstract class SessionChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
 
         static final def JAVA_MAIL_SMTP_HOST = 'mail.smtp.host'
         static final def JAVA_MAIL_SMTP_AUTH = 'mail.smtp.auth'
 
-        DefaultSessionChain(EnvelopeChainData input) {
+        SessionChain(EnvelopeChainData input) {
             super(input)
         }
 
+        abstract Authenticator getAuthenticator()
+
         @Override
         void duty() {
+            Authenticator authenticator = getAuthenticator()
             Properties properties = this.getProperties()
             if (EmailExtension.ZIP == input.email.enclosureType) {
-                input.session = Session.getDefaultInstance(properties)
+                if (authenticator == null) {
+                    input.session = Session.getDefaultInstance(properties)
+                } else {
+                    input.session = Session.getDefaultInstance(properties, authenticator)
+                }
             } else if (EmailExtension.HTML == input.email.enclosureType) {
                 def sessionCount = input.safeHtmlFiles.size()
                 input.sessions = new ArrayList<>(sessionCount)
                 for (int i = 0; i < sessionCount; i++) {
-                    input.sessions.add(Session.getDefaultInstance(properties))
+                    if (authenticator == null) {
+                        input.sessions.add(Session.getDefaultInstance(properties))
+                    } else {
+                        input.sessions.add(Session.getDefaultInstance(properties, authenticator))
+                    }
                 }
             }
         }
@@ -225,27 +231,46 @@ interface Envelope {
     }
 
     /**
+     * default session chain
+     *
+     * @param < C >                                               C extends BaseEnvelopeChain
+     */
+    static class DefaultSessionChain<C extends BaseEnvelopeChain>
+            extends SessionChain<C> {
+
+        DefaultSessionChain(EnvelopeChainData input) {
+            super(input)
+        }
+
+        @Override
+        Authenticator getAuthenticator() {
+            return null
+        }
+    }
+
+    /**
      * NetEase session chain
      *
-     * @param < C >                     C extends BaseEnvelopeChain
+     * @param < C >                                               C extends BaseEnvelopeChain
      */
     static class NetEaseSessionChain<C extends BaseEnvelopeChain>
-            extends DefaultSessionChain<C> {
+            extends SessionChain<C> {
 
         NetEaseSessionChain(EnvelopeChainData input) {
             super(input)
         }
 
         @Override
-        void duty() {
-            // TODO NetEase smtp
+        Authenticator getAuthenticator() {
+            // NetEase smtp
+            return new PasswordAuthentication(input.smtpUser, input.smtpPassword)
         }
     }
 
     /**
      * QQ session chain
      *
-     * @param < C >                     C extends BaseEnvelopeChain
+     * @param < C >                                               C extends BaseEnvelopeChain
      */
     static class QQSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
@@ -263,7 +288,7 @@ interface Envelope {
     /**
      * Sina session chain
      *
-     * @param < C >                     C extends BaseEnvelopeChain
+     * @param < C >                                               C extends BaseEnvelopeChain
      */
     static class SinaSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
@@ -281,7 +306,7 @@ interface Envelope {
     /**
      * zip letter session chain
      *
-     * @param < C >                     C extends BaseEnvelopeChain
+     * @param < C >                                               C extends BaseEnvelopeChain
      */
     static class ZipLetterChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -361,7 +386,7 @@ interface Envelope {
     /**
      * html letter session chain
      *
-     * @param < C >                     C extends BaseEnvelopeChain
+     * @param < C >                                               C extends BaseEnvelopeChain
      */
     static class HtmlLetterChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {

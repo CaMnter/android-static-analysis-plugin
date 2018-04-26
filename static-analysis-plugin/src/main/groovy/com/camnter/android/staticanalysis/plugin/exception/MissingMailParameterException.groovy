@@ -26,7 +26,7 @@ class MissingMailParameterException {
         super("In ${where.name()}, ${parameter} is missing")
     }
 
-    public enum Where {
+    enum Where {
         LOCAL("local.properties"), EXTENSION("email{...}")
 
         String where
