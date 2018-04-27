@@ -71,6 +71,13 @@ class EmailTask extends DefaultTask {
 
             switch (getHost(data)) {
                 case QQ:
+                    Envelope.ZipCheckChain<Envelope.QQSessionChain> zipCheckChain = new Envelope.ZipCheckChain<Envelope.QQSessionChain>(
+                            data)
+                    Envelope.QQSessionChain<Envelope.ZipLetterChain> realSessionChain = new Envelope.QQSessionChain<Envelope.ZipLetterChain>(
+                            data)
+                    receiversCheckChain.next = zipCheckChain
+                    zipCheckChain.next = realSessionChain
+                    realSessionChain.next = zipLetterChain
                     break
                 case NetEase:
                     Envelope.ZipCheckChain<Envelope.NetEaseSessionChain> zipCheckChain = new Envelope.ZipCheckChain<Envelope.NetEaseSessionChain>(
@@ -111,6 +118,13 @@ class EmailTask extends DefaultTask {
 
             switch (getHost(data)) {
                 case QQ:
+                    Envelope.HtmlCheckChain<Envelope.QQSessionChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.QQSessionChain>(
+                            data)
+                    Envelope.QQSessionChain<Envelope.HtmlLetterChain> realSessionChain = new Envelope.QQSessionChain<Envelope.HtmlLetterChain>(
+                            data)
+                    receiversCheckChain.next = htmlCheckChain
+                    htmlCheckChain.next = realSessionChain
+                    realSessionChain.next = htmlLetterChain
                     break
                 case NetEase:
                     Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain>(
