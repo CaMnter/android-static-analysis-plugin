@@ -88,6 +88,15 @@ class EmailTask extends DefaultTask {
                     zipCheckChain.next = realSessionChain
                     realSessionChain.next = zipLetterChain
                     break
+                case Google:
+                    Envelope.ZipCheckChain<Envelope.GoogleSessionChain> zipCheckChain = new Envelope.ZipCheckChain<Envelope.GoogleSessionChain>(
+                            data)
+                    Envelope.GoogleSessionChain<Envelope.ZipLetterChain> realSessionChain = new Envelope.GoogleSessionChain<Envelope.ZipLetterChain>(
+                            data)
+                    receiversCheckChain.next = zipCheckChain
+                    zipCheckChain.next = realSessionChain
+                    realSessionChain.next = zipLetterChain
+                    break
                 case Other:
                     Envelope.ZipCheckChain<Envelope.DefaultSessionChain> zipCheckChain = new Envelope.ZipCheckChain<Envelope.DefaultSessionChain>(
                             data)
@@ -130,6 +139,15 @@ class EmailTask extends DefaultTask {
                     Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain>(
                             data)
                     Envelope.NetEaseSessionChain<Envelope.HtmlLetterChain> realSessionChain = new Envelope.NetEaseSessionChain<Envelope.HtmlLetterChain>(
+                            data)
+                    receiversCheckChain.next = htmlCheckChain
+                    htmlCheckChain.next = realSessionChain
+                    realSessionChain.next = htmlLetterChain
+                    break
+                case Google:
+                    Envelope.HtmlCheckChain<Envelope.GoogleSessionChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.GoogleSessionChain>(
+                            data)
+                    Envelope.GoogleSessionChain<Envelope.HtmlLetterChain> realSessionChain = new Envelope.GoogleSessionChain<Envelope.HtmlLetterChain>(
                             data)
                     receiversCheckChain.next = htmlCheckChain
                     htmlCheckChain.next = realSessionChain

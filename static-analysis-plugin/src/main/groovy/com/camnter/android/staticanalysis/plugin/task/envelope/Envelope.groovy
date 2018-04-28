@@ -43,9 +43,10 @@ interface Envelope {
 
         static final String HOST_QQ = '@qq.com'
         static final String HOST_NETEASE = '@163.com'
+        static final String HOST_GOOGLE = '@gmail.com'
 
         enum Host {
-            QQ('QQ'), NetEase('NetEase'), Other('Other')
+            QQ('QQ'), NetEase('NetEase'), Google('google'), Other('Other')
 
             String value
 
@@ -61,6 +62,8 @@ interface Envelope {
                 return Host.QQ
             } else if (smtpUser.endsWith(HOST_NETEASE)) {
                 return Host.NetEase
+            } else if (smtpUser.endsWith(HOST_GOOGLE)) {
+                return Host.Google
             } else {
                 return Host.Other
             }
@@ -102,7 +105,7 @@ interface Envelope {
     /**
      * base chain
      *
-     * @param < C >                                                                         C extends BaseEnvelopeChain
+     * @param < C >
      */
     static abstract class BaseEnvelopeChain<C extends BaseEnvelopeChain>
             implements EnvelopeChain {
@@ -127,7 +130,7 @@ interface Envelope {
     /**
      * receiver check chain
      *
-     * @param < C >                                                                        C extends BaseEnvelopeChain
+     * @param < C >
      */
     static class ReceiversCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -148,7 +151,7 @@ interface Envelope {
     /**
      * zip check chain
      *
-     * @param < C >                                                                        C extends BaseEnvelopeChain
+     * @param < C >
      */
     static class ZipCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -172,7 +175,7 @@ interface Envelope {
     /**
      * html check chain
      *
-     * @param < C >                                                                        C extends BaseEnvelopeChain
+     * @param < C >
      */
     static class HtmlCheckChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -250,7 +253,7 @@ interface Envelope {
     /**
      * default session chain
      *
-     * @param < C >                                                                        C extends BaseEnvelopeChain
+     * @param < C >
      */
     static class DefaultSessionChain<C extends BaseEnvelopeChain>
             extends SessionChain<C> {
@@ -268,7 +271,7 @@ interface Envelope {
     /**
      * NetEase session chain
      *
-     * @param < C >                                                                        C extends BaseEnvelopeChain
+     * @param < C >
      */
     static class NetEaseSessionChain<C extends BaseEnvelopeChain>
             extends SessionChain<C> {
@@ -283,7 +286,7 @@ interface Envelope {
             return new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return PasswordAuthentication(input.smtpUser, input.smtpPassword)
+                    return new PasswordAuthentication(input.smtpUser, input.smtpPassword)
                 }
             }
         }
@@ -292,7 +295,7 @@ interface Envelope {
     /**
      * QQ session chain
      *
-     * @param < C >                                                                        C extends BaseEnvelopeChain
+     * @param < C >
      */
     static class QQSessionChain<C extends BaseEnvelopeChain>
             extends DefaultSessionChain<C> {
@@ -307,7 +310,7 @@ interface Envelope {
             return new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return PasswordAuthentication(input.smtpUser, input.smtpPassword)
+                    return new PasswordAuthentication(input.smtpUser, input.smtpPassword)
                 }
             }
         }
@@ -324,27 +327,22 @@ interface Envelope {
     }
 
     /**
-     * Sina session chain
+     * Google session chain
      *
-     * @param < C >                                                                        C extends BaseEnvelopeChain
+     * @param < C >
      */
-    static class SinaSessionChain<C extends BaseEnvelopeChain>
-            extends DefaultSessionChain<C> {
+    static class GoogleSessionChain<C extends BaseEnvelopeChain>
+            extends QQSessionChain<C> {
 
-        SinaSessionChain(EnvelopeChainData input) {
+        GoogleSessionChain(EnvelopeChainData input) {
             super(input)
-        }
-
-        @Override
-        void duty() {
-            // TODO Sina smtp
         }
     }
 
     /**
      * zip letter session chain
      *
-     * @param < C >                                                                        C extends BaseEnvelopeChain
+     * @param < C >
      */
     static class ZipLetterChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
@@ -424,7 +422,7 @@ interface Envelope {
     /**
      * html letter session chain
      *
-     * @param < C >                                                                        C extends BaseEnvelopeChain
+     * @param < C >
      */
     static class HtmlLetterChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
