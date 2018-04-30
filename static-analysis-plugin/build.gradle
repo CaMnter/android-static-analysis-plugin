@@ -17,6 +17,7 @@ dependencies {
     compileOnly gradleApi()
     compileOnly localGroovy()
     compile 'com.android.tools.build:gradle:3.0.0'
+    compile 'com.sun.mail:javax.mail:1.6.1'
 }
 
 sourceSets {

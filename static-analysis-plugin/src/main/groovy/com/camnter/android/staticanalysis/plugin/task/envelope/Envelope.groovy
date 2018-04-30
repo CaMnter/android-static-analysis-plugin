@@ -484,8 +484,8 @@ interface Envelope {
                     String neatCarbonCopys = StringUtils.replaceBlank(email.carbonCopy)
                     String[] carbonCopys = neatCarbonCopys.split(DIVIDE)
                     InternetAddress[] addresses = new InternetAddress[carbonCopys.length]
-                    for (int i = 0; i < carbonCopys.length; i++) {
-                        addresses[i] = new InternetAddress(carbonCopys[i])
+                    for (int j = 0; j < carbonCopys.length; j++) {
+                        addresses[j] = new InternetAddress(carbonCopys[j])
                     }
                     message.addRecipients(Message.RecipientType.CC, addresses)
                 } else {

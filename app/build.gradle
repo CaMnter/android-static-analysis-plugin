@@ -22,7 +22,6 @@ android {
         }
     }
 }
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'
@@ -33,3 +32,21 @@ dependencies {
 }
 
 apply plugin: 'com.camnter.gradle.plugin.static.analysis'
+
+androidStaticAnalysis {
+    // eg: true or false
+    debugAnalysis = true
+    // eg: true or false
+    releaseAnalysis = true
+
+    email{
+        send = true
+        nickname = 'CaMnter'
+        theme = 'Android static analysis'
+        content = 'Android static analysis'
+        receivers = 'yuanyu.camnter@gmail.com'
+        // carbonCopy = 'yuanyu.camnter@gmail.com'
+        // html or zip
+        enclosureType = 'html'
+    }
+}
