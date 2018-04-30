@@ -140,6 +140,131 @@ gradle assembleRelease
 <br>
 <br>
 
+# Automatically send mail
+
+```groovy
+androidStaticAnalysis {
+    email{
+        // whether to send email automatically, default is false
+        // eg: true or false
+        send = true
+        // sender nickname
+        nickname = 'CaMnter'
+        // email theme
+        theme = 'Android static analysis'
+        // email content
+        // failure when enclosureType = 'html'
+        // valid when enclosureType = 'zip'
+        content = 'Android static analysis'
+        // the recipient, many separated by ;
+        // eg: 'a@gmail.com;b@gmail.com'
+        receivers = 'yuanyu.camnter@gmail.com'
+        // cc, many people separated by ;
+        // eg: 'c@gmail.com;d@gmail.com'
+        carbonCopy = 'yuanyu.camnter@gmail.com'
+        // Analyze content, html format or zip format, default html format
+        // eg: html or zip
+        enclosureType = 'html'
+    }
+}
+```
+
+This is only part of.
+
+<br>
+
+
+
+## `Stmp related configuration`  
+
+Complete the following configuration within **local.properties**
+
+```groovy
+asap.smtpHost=company stmp server address
+asap.smtpUser=company email
+asap.smtpPassword=company email password
+```
+
+<br>
+
+### `Google Mail Stmp Configuration`  
+
+**1.** Open ["Forwarding and POP/IMAP" in gmail settings page](https://mail.google.com/mail/u/0/#settings/fwdandpop). 
+  
+**2.** Check on "**Enable IMAP**".
+  
+**3.** Open [Two-step verification](https://myaccount.google.com/security?hl=zh-CN#signin). 
+  
+**4.** Create [gmail app password](https://security.google.com/settings/security/apppasswords).  
+
+**Gmail app password** as **gmail** **stmp password**.
+
+```groovy
+asap.smtpHost=smtp.gmail.com
+asap.smtpUser=gmail
+asap.smtpPassword=gmail app password
+```
+
+![gmail_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_1.jpg)
+![gmail_2](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_2.jpg)
+![gmail_3](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_3.jpg)
+
+<br>
+
+### `QQ Mail Stmp Configuration`     
+
+**1.** **QQ** mailbox setting page，Open "**POP3/SMTP Service**".  
+
+**2.** Generate an authorization code.
+
+ 
+**Authorization code** as **QQ mailbox** **stmp password**. 
+
+```groovy
+asap.smtpHost=smtp.qq.com
+asap.smtpUser=qq email
+asap.smtpPassword=authorization code
+```
+
+![qq_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/qq_1.jpg)
+![qq_2](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/qq_2.jpg)
+
+<br>
+
+### `NetEase Email Stmp Configuration`     
+
+**1.** **NetEase Mailbox** Settings page, open "**POP3/SMTP Service**".  
+   
+**2.** Set **Client Authorization Password**.
+
+**Client Authorization Password** as the **stmp password** for **NetEase Mailbox**.
+
+```groovy
+asap.smtpHost=smtp.163.com
+asap.smtpUser=NetEase mailbox
+asap.smtpPassword=Client Authorization Password
+```
+
+![netease_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/netease_1.jpg)
+![netease_2](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/netease_2.jpg)
+
+<br>
+
+### `Sina Mail Stmp Configuration`     
+
+**Sina Mailbox** Settings page, open "**POP3/SMTP Service**".   
+
+```groovy
+asap.smtpHost=smtp.sina.com
+asap.smtpUser=sina mailbox
+asap.smtpPassword=sina mailbox password
+```
+
+![sina_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/sina_1.jpg)
+
+<br>
+<br>
+
 # License
 
       Copyright (C) 2018 CaMnter yuanyu.camnter@gmail.com
