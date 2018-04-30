@@ -206,8 +206,8 @@ asap.smtpPassword=gmail app password
 ```
 
 ![gmail_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_1.jpg)
-![gmail_2](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_2.jpg)
-![gmail_3](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_3.jpg)
+<img src="https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_2.jpg" width="600x"/>
+<img src="https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_3.jpg" width="600x"/>
 
 <br>
 
@@ -227,7 +227,7 @@ asap.smtpPassword=authorization code
 ```
 
 ![qq_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/qq_1.jpg)
-![qq_2](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/qq_2.jpg)
+<img src="https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/qq_2.jpg" width="600x"/>
 
 <br>
 

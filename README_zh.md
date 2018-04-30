@@ -197,8 +197,8 @@ asap.smtpPassword=刚才申请的 gmail 专用密码
 ```
 
 ![gmail_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_1.jpg)
-![gmail_2](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_2.jpg)
-![gmail_3](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_3.jpg)
+<img src="https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_2.jpg" width="600x"/>
+<img src="https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_3.jpg" width="600x"/>
 
 <br>
 
@@ -218,7 +218,7 @@ asap.smtpPassword=刚才申请的 qq 邮箱授权码
 ```
 
 ![qq_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/qq_1.jpg)
-![qq_2](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/qq_2.jpg)
+<img src="https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/qq_2.jpg" width="600x"/>
 
 <br>
 
