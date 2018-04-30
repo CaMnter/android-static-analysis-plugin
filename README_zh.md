@@ -162,6 +162,10 @@ androidStaticAnalysis {
 
 这只是一部分。
 
+<br>
+
+
+
 ## `Stmp 相关配置`  
 
 在 **local.properties** 内完成以下配置
@@ -192,6 +196,10 @@ asap.smtpUser=gmail 邮箱
 asap.smtpPassword=刚才申请的 gmail 专用密码
 ```
 
+![gmail_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_1.jpg)
+![gmail_2](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_2.jpg)
+![gmail_3](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/gmail_3.jpg)
+
 <br>
 
 ### `QQ 邮箱 Stmp 配置`     
@@ -209,6 +217,9 @@ asap.smtpUser=qq 邮箱
 asap.smtpPassword=刚才申请的 qq 邮箱授权码
 ```
 
+![qq_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/qq_1.jpg)
+![qq_2](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/qq_2.jpg)
+
 <br>
 
 ### `网易 邮箱 Stmp 配置`     
@@ -225,6 +236,9 @@ asap.smtpUser=网易 邮箱
 asap.smtpPassword=刚才申请的 网易邮箱 客户端授权密码
 ```
 
+![netease_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/netease_1.jpg)
+![netease_2](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/netease_2.jpg)
+
 <br>
 
 ### `Sina 邮箱 Stmp 配置`     
@@ -236,6 +250,8 @@ asap.smtpHost=smtp.sina.com
 asap.smtpUser=sina 邮箱
 asap.smtpPassword=sina 邮箱密码
 ```
+
+![sina_1](https://github.com/CaMnter/android-static-analysis-plugin/blob/master/screenshots/sina_1.jpg)
 
 <br>
 <br>
