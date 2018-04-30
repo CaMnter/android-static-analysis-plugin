@@ -17,7 +17,7 @@
 
 ```groovy
 dependencies {
-    com.camnter.gradle.plugin:static-analysis-plugin:1.0.3
+    com.camnter.gradle.plugin:static-analysis-plugin:1.0.4
 }
 ```
 
@@ -126,6 +126,115 @@ gradle assembleDebug
 
 ```shell
 gradle assembleRelease
+```
+
+<br>
+<br>
+
+# 自动发邮件
+
+```groovy
+androidStaticAnalysis {
+    email{
+        // 是否自动发邮件，默认 false
+        // eg: true or false
+        send = true
+        // 发信人昵称
+        nickname = 'CaMnter'
+        // 邮件主题
+        theme = 'Android static analysis'
+        // 邮件内容
+        // enclosureType = 'html' 的时候，失效
+        // enclosureType = 'zip'  的时候，有效
+        content = 'Android static analysis'
+        // 收信人，多人则以 ; 号隔开
+        // eg: 'a@gmail.com;b@gmail.com'
+        receivers = 'yuanyu.camnter@gmail.com'
+        // 抄送，多人则以 ; 号隔开
+        // eg: 'c@gmail.com;d@gmail.com'
+        carbonCopy = 'yuanyu.camnter@gmail.com'
+        // eg: html or zip
+        // 分析内容，html 格式还是 zip 格式，默认 html 格式
+        enclosureType = 'html'
+    }
+}
+```
+
+这只是一部分。
+
+## `Stmp 相关配置`  
+
+在 **local.properties** 内完成以下配置
+
+```groovy
+asap.smtpHost=公司 stmp 服务器地址
+asap.smtpUser=公司邮箱
+asap.smtpPassword=公司邮箱密码
+```
+
+<br>
+
+### `Google 邮箱 Stmp 配置`  
+
+**1.** 打开 [gmail 设置页面中的 "转发和 POP/IMAP"](https://mail.google.com/mail/u/0/#settings/fwdandpop)。 
+  
+**2.** 勾选上 "**启用 IMAP**"。 
+  
+**3.** 开启 [两步验证](https://myaccount.google.com/security?hl=zh-CN#signin)。  
+  
+**4.** 生成 [gmail 专用密码](https://security.google.com/settings/security/apppasswords)。  
+
+**gmail 专用密码** 作为 **gmail** 的 **stmp password**。
+
+```groovy
+asap.smtpHost=smtp.gmail.com
+asap.smtpUser=gmail 邮箱
+asap.smtpPassword=刚才申请的 gmail 专用密码
+```
+
+<br>
+
+### `QQ 邮箱 Stmp 配置`     
+
+**1.** **QQ** 邮箱设置页面，打开 "**POP3/SMTP服务**"。  
+
+**2.** 生成授权码。  
+
+ 
+**授权码** 作为 **QQ 邮箱** 的 **stmp password**。 
+
+```groovy
+asap.smtpHost=smtp.qq.com
+asap.smtpUser=qq 邮箱
+asap.smtpPassword=刚才申请的 qq 邮箱授权码
+```
+
+<br>
+
+### `网易 邮箱 Stmp 配置`     
+
+**1.** **网易邮箱** 设置页面，打开 "**POP3/SMTP服务**"。  
+   
+**2.** 设置 **客户端授权密码**。
+
+**客户端授权密码** 作为 **网易邮箱** 的 **stmp password**。
+
+```groovy
+asap.smtpHost=smtp.163.com
+asap.smtpUser=网易 邮箱
+asap.smtpPassword=刚才申请的 网易邮箱 客户端授权密码
+```
+
+<br>
+
+### `Sina 邮箱 Stmp 配置`     
+
+**Sina 邮箱** 设置页面，打开 "**POP3/SMTP服务**"   
+
+```groovy
+asap.smtpHost=smtp.sina.com
+asap.smtpUser=sina 邮箱
+asap.smtpPassword=sina 邮箱密码
 ```
 
 <br>
