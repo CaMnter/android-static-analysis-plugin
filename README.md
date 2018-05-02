@@ -23,7 +23,7 @@
 
 ```groovy
 dependencies {
-    com.camnter.gradle.plugin:static-analysis-plugin:1.0.3
+    com.camnter.gradle.plugin:static-analysis-plugin:1.0.4
 }
 ```
 
@@ -112,7 +112,7 @@ androidStaticAnalysis {
 <br>
 <br>
 
-# execute
+# Execute
 
 ```shell
 gradle check
