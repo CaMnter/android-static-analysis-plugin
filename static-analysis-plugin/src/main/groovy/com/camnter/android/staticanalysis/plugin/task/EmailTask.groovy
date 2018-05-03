@@ -154,7 +154,7 @@ class EmailTask extends DefaultTask {
                     realSessionChain.next = htmlLetterChain
                     break
                 case Other:
-                    Envelope.HtmlCheckChain<Envelope.DefaultSessionChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.NetEaseSessionChain>(
+                    Envelope.HtmlCheckChain<Envelope.DefaultSessionChain> htmlCheckChain = new Envelope.HtmlCheckChain<Envelope.DefaultSessionChain>(
                             data)
                     Envelope.DefaultSessionChain<Envelope.HtmlLetterChain> realSessionChain = new Envelope.DefaultSessionChain<Envelope.HtmlLetterChain>(
                             data)
