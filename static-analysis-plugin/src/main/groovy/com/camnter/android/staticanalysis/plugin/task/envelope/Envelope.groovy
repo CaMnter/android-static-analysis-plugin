@@ -373,31 +373,35 @@ interface Envelope {
             }
 
             // to
-            if (email.receivers.contains(DIVIDE)) {
-                String neatReceivers = StringUtils.replaceBlank(email.receivers)
-                String[] receivers = neatReceivers.split(DIVIDE)
-                InternetAddress[] addresses = new InternetAddress[receivers.length]
-                for (int i = 0; i < receivers.length; i++) {
-                    addresses[i] = new InternetAddress(receivers[i])
+            if (!StringUtils.isEmpty(email.receivers)) {
+                if (email.receivers.contains(DIVIDE)) {
+                    String neatReceivers = StringUtils.replaceBlank(email.receivers)
+                    String[] receivers = neatReceivers.split(DIVIDE)
+                    InternetAddress[] addresses = new InternetAddress[receivers.length]
+                    for (int i = 0; i < receivers.length; i++) {
+                        addresses[i] = new InternetAddress(receivers[i])
+                    }
+                    message.addRecipients(Message.RecipientType.TO, addresses)
+                } else {
+                    message.addRecipient(Message.RecipientType.TO,
+                            new InternetAddress(email.receivers))
                 }
-                message.addRecipients(Message.RecipientType.TO, addresses)
-            } else {
-                message.addRecipient(Message.RecipientType.TO,
-                        new InternetAddress(email.receivers))
             }
 
             // cc
-            if (email.carbonCopy.contains(DIVIDE)) {
-                String neatCarbonCopys = StringUtils.replaceBlank(email.carbonCopy)
-                String[] carbonCopys = neatCarbonCopys.split(DIVIDE)
-                InternetAddress[] addresses = new InternetAddress[carbonCopys.length]
-                for (int i = 0; i < carbonCopys.length; i++) {
-                    addresses[i] = new InternetAddress(carbonCopys[i])
+            if (!StringUtils.isEmpty(email.carbonCopy)) {
+                if (email.carbonCopy.contains(DIVIDE)) {
+                    String neatCarbonCopys = StringUtils.replaceBlank(email.carbonCopy)
+                    String[] carbonCopys = neatCarbonCopys.split(DIVIDE)
+                    InternetAddress[] addresses = new InternetAddress[carbonCopys.length]
+                    for (int i = 0; i < carbonCopys.length; i++) {
+                        addresses[i] = new InternetAddress(carbonCopys[i])
+                    }
+                    message.addRecipients(Message.RecipientType.CC, addresses)
+                } else {
+                    message.addRecipient(Message.RecipientType.CC,
+                            new InternetAddress(email.carbonCopy))
                 }
-                message.addRecipients(Message.RecipientType.CC, addresses)
-            } else {
-                message.addRecipient(Message.RecipientType.CC,
-                        new InternetAddress(email.carbonCopy))
             }
 
             // theme
@@ -436,7 +440,7 @@ interface Envelope {
     static class HtmlLetterChain<C extends BaseEnvelopeChain>
             extends BaseEnvelopeChain<C> {
 
-        static final def RECEIVERS_DIVIDE = ';'
+        static final def DIVIDE = ';'
 
         HtmlLetterChain(EnvelopeChainData input) {
             super(input)
@@ -466,31 +470,35 @@ interface Envelope {
                 }
 
                 // to
-                if (email.receivers.contains(RECEIVERS_DIVIDE)) {
-                    String neatReceivers = StringUtils.replaceBlank(email.receivers)
-                    String[] receivers = neatReceivers.split(RECEIVERS_DIVIDE)
-                    InternetAddress[] addresses = new InternetAddress[receivers.length]
-                    for (int j = 0; j < receivers.length; j++) {
-                        addresses[j] = new InternetAddress(receivers[j])
+                if (!StringUtils.isEmpty(email.receivers)) {
+                    if (email.receivers.contains(DIVIDE)) {
+                        String neatReceivers = StringUtils.replaceBlank(email.receivers)
+                        String[] receivers = neatReceivers.split(DIVIDE)
+                        InternetAddress[] addresses = new InternetAddress[receivers.length]
+                        for (int j = 0; j < receivers.length; j++) {
+                            addresses[j] = new InternetAddress(receivers[j])
+                        }
+                        message.addRecipients(Message.RecipientType.TO, addresses)
+                    } else {
+                        message.addRecipient(Message.RecipientType.TO,
+                                new InternetAddress(email.receivers))
                     }
-                    message.addRecipients(Message.RecipientType.TO, addresses)
-                } else {
-                    message.addRecipient(Message.RecipientType.TO,
-                            new InternetAddress(email.receivers))
                 }
 
                 // cc
-                if (email.carbonCopy.contains(DIVIDE)) {
-                    String neatCarbonCopys = StringUtils.replaceBlank(email.carbonCopy)
-                    String[] carbonCopys = neatCarbonCopys.split(DIVIDE)
-                    InternetAddress[] addresses = new InternetAddress[carbonCopys.length]
-                    for (int j = 0; j < carbonCopys.length; j++) {
-                        addresses[j] = new InternetAddress(carbonCopys[j])
+                if (!StringUtils.isEmpty(email.carbonCopy)) {
+                    if (email.carbonCopy.contains(DIVIDE)) {
+                        String neatCarbonCopys = StringUtils.replaceBlank(email.carbonCopy)
+                        String[] carbonCopys = neatCarbonCopys.split(DIVIDE)
+                        InternetAddress[] addresses = new InternetAddress[carbonCopys.length]
+                        for (int j = 0; j < carbonCopys.length; j++) {
+                            addresses[j] = new InternetAddress(carbonCopys[j])
+                        }
+                        message.addRecipients(Message.RecipientType.CC, addresses)
+                    } else {
+                        message.addRecipient(Message.RecipientType.CC,
+                                new InternetAddress(email.carbonCopy))
                     }
-                    message.addRecipients(Message.RecipientType.CC, addresses)
-                } else {
-                    message.addRecipient(Message.RecipientType.CC,
-                            new InternetAddress(email.carbonCopy))
                 }
 
                 // theme
