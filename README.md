@@ -23,7 +23,7 @@
 
 ```groovy
 dependencies {
-    com.camnter.gradle.plugin:static-analysis-plugin:1.0.4
+    com.camnter.gradle.plugin:static-analysis-plugin:1.0.5
 }
 ```
 
