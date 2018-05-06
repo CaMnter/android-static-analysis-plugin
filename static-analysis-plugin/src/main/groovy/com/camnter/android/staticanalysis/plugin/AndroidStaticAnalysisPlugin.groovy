@@ -52,7 +52,8 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
 
             AndroidStaticAnalysis analysis = project.androidStaticAnalysis
 
-            def createDefalutRulesTask = AndroidStaticAnalysis.isCreateDefaultRulesTask(analysis)
+            def createDefalutRulesTask = AndroidStaticAnalysis.isCreateDefaultRulesTask(analysis,
+                    reportsDir)
             def rulesCheck = null
             def rulesDebug = null
             def rulesRelease = null

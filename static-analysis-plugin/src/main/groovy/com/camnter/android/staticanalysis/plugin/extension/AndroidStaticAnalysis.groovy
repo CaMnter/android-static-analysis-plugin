@@ -98,14 +98,27 @@ class AndroidStaticAnalysis {
         }
     }
 
-    static def isCreateDefaultRulesTask(AndroidStaticAnalysis analysis) {
+    static def isCreateDefaultRulesTask(AndroidStaticAnalysis analysis, String reportsDir) {
         PmdExtension pmd = analysis.pmd
         LintExtension lint = analysis.lint
         FindBugsExtension findBugs = analysis.findBugs
         CheckstyleExtension checkstyle = analysis.checkstyle
-        return StringUtils.isEmpty(pmd.ruleSetFiles) || StringUtils.isEmpty(lint.lintConfig) ||
+
+        // default rule path or empty
+        return StringUtils.isEmpty(
+                pmd.ruleSetFiles) || "${reportsDir}/${DefaultRulesTask.DEFAULT_PMD_RULE_PATH}" ==
+                pmd.ruleSetFiles ||
+                StringUtils.isEmpty(lint.lintConfig) ||
+                "${reportsDir}/${DefaultRulesTask.DEFAULT_LINT_RULE_PATH}" ==
+                lint.lintConfig ||
                 StringUtils.isEmpty(findBugs.excludeFilter) ||
+                "${reportsDir}/${DefaultRulesTask.DEFAULT_FINDBUGS_RULE_PATH}" ==
+                findBugs.excludeFilter ||
                 StringUtils.isEmpty(checkstyle.configDir) ||
-                StringUtils.isEmpty(checkstyle.suppressionsPath)
+                "${reportsDir}/${DefaultRulesTask.DEFAULT_CHECKSTYLE_RULE_PATH}" ==
+                checkstyle.configDir ||
+                StringUtils.isEmpty(checkstyle.suppressionsPath) ||
+                "${reportsDir}/${DefaultRulesTask.DEFAULT_CHECKSTYLE_SUPPRESSIONS_RULE_PATH}" ==
+                checkstyle.suppressionsPath
     }
 }

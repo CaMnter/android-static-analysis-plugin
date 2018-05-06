@@ -178,12 +178,23 @@ class AnalysisTaskManager {
             DefaultRulesTask task ->
                 task.with {
                     task.reportsDir = reportsDir
-                    setCreateDefaultPmdRule(StringUtils.isEmpty(pmd.ruleSetFiles))
-                    setCreateDefaultLintRule(StringUtils.isEmpty(lint.lintConfig))
-                    setCreateDefaultFindBugsRule(StringUtils.isEmpty(findBugs.excludeFilter))
-                    setCreateDefaultCheckstyleRule(StringUtils.isEmpty(checkstyle.configDir))
-                    setCreateDefaultCheckstyleSuppressionsRule(
-                            StringUtils.isEmpty(checkstyle.suppressionsPath))
+
+                    // default rule path or empty
+                    setCreateDefaultPmdRule(StringUtils.isEmpty(
+                            pmd.ruleSetFiles) || "${reportsDir}/${DefaultRulesTask.DEFAULT_PMD_RULE_PATH}" ==
+                            pmd.ruleSetFiles)
+                    setCreateDefaultLintRule(StringUtils.isEmpty(
+                            lint.lintConfig) || "${reportsDir}/${DefaultRulesTask.DEFAULT_LINT_RULE_PATH}" ==
+                            lint.lintConfig)
+                    setCreateDefaultFindBugsRule(StringUtils.isEmpty(
+                            findBugs.excludeFilter) || "${reportsDir}/${DefaultRulesTask.DEFAULT_FINDBUGS_RULE_PATH}" ==
+                            findBugs.excludeFilter)
+                    setCreateDefaultCheckstyleRule(StringUtils.isEmpty(
+                            checkstyle.configDir) || "${reportsDir}/${DefaultRulesTask.DEFAULT_CHECKSTYLE_RULE_PATH}" ==
+                            checkstyle.configDir)
+                    setCreateDefaultCheckstyleSuppressionsRule(StringUtils.isEmpty(
+                            checkstyle.suppressionsPath) || "${reportsDir}/${DefaultRulesTask.DEFAULT_CHECKSTYLE_SUPPRESSIONS_RULE_PATH}" ==
+                            checkstyle.suppressionsPath)
                 }
         }
     }
