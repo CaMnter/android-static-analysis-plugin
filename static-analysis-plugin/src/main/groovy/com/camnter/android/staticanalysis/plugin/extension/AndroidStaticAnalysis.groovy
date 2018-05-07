@@ -105,20 +105,44 @@ class AndroidStaticAnalysis {
         CheckstyleExtension checkstyle = analysis.checkstyle
 
         // default rule path or empty
+        return isPmdRuleEmpty(pmd, reportsDir) || isLintRuleEmpty(lint, reportsDir) ||
+                isFindBugsRuleEmpty(findBugs, reportsDir) ||
+                isCheckstyleRuleEmpty(checkstyle, reportsDir) ||
+                isCheckstyleSuppressionEmpty(checkstyle, reportsDir)
+    }
+
+    static def isPmdRuleEmpty(PmdExtension pmd, String reportsDir) {
+        final def ruleSetFiles = pmd.ruleSetFiles
         return StringUtils.isEmpty(
-                pmd.ruleSetFiles) || "${reportsDir}/${DefaultRulesTask.DEFAULT_PMD_RULE_PATH}" ==
-                pmd.ruleSetFiles ||
-                StringUtils.isEmpty(lint.lintConfig) ||
-                "${reportsDir}/${DefaultRulesTask.DEFAULT_LINT_RULE_PATH}" ==
-                lint.lintConfig ||
-                StringUtils.isEmpty(findBugs.excludeFilter) ||
-                "${reportsDir}/${DefaultRulesTask.DEFAULT_FINDBUGS_RULE_PATH}" ==
-                findBugs.excludeFilter ||
-                StringUtils.isEmpty(checkstyle.configDir) ||
-                "${reportsDir}/${DefaultRulesTask.DEFAULT_CHECKSTYLE_RULE_PATH}" ==
-                checkstyle.configDir ||
-                StringUtils.isEmpty(checkstyle.suppressionsPath) ||
-                "${reportsDir}/${DefaultRulesTask.DEFAULT_CHECKSTYLE_SUPPRESSIONS_RULE_PATH}" ==
-                checkstyle.suppressionsPath
+                ruleSetFiles) || "${reportsDir}/${DefaultRulesTask.DEFAULT_PMD_RULE_PATH}" ==
+                ruleSetFiles
+    }
+
+    static def isLintRuleEmpty(LintExtension lint, String reportsDir) {
+        final def lintConfig = lint.lintConfig
+        return StringUtils.isEmpty(
+                lintConfig) || "${reportsDir}/${DefaultRulesTask.DEFAULT_LINT_RULE_PATH}" ==
+                lintConfig
+    }
+
+    static def isFindBugsRuleEmpty(FindBugsExtension findBugs, String reportsDir) {
+        final def excludeFilter = findBugs.excludeFilter
+        return StringUtils.isEmpty(
+                excludeFilter) || "${reportsDir}/${DefaultRulesTask.DEFAULT_FINDBUGS_RULE_PATH}" ==
+                excludeFilter
+    }
+
+    static def isCheckstyleRuleEmpty(CheckstyleExtension checkstyle, String reportsDir) {
+        final def configDir = checkstyle.configDir
+        return StringUtils.isEmpty(
+                configDir) || "${reportsDir}/${DefaultRulesTask.DEFAULT_CHECKSTYLE_RULE_PATH}" ==
+                configDir
+    }
+
+    static def isCheckstyleSuppressionEmpty(CheckstyleExtension checkstyle, String reportsDir) {
+        final def suppressionPath = checkstyle.suppressionsPath
+        return StringUtils.isEmpty(
+                suppressionPath) || "${reportsDir}/${DefaultRulesTask.DEFAULT_CHECKSTYLE_SUPPRESSIONS_RULE_PATH}" ==
+                suppressionPath
     }
 }

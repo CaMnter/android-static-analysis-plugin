@@ -22,7 +22,6 @@ import com.camnter.android.staticanalysis.plugin.extension.*
 import com.camnter.android.staticanalysis.plugin.task.AnalysisZipTask
 import com.camnter.android.staticanalysis.plugin.task.DefaultRulesTask
 import com.camnter.android.staticanalysis.plugin.task.EmailTask
-import com.camnter.android.staticanalysis.plugin.utils.StringUtils
 import org.gradle.api.Project
 import org.gradle.api.plugins.quality.Checkstyle
 import org.gradle.api.plugins.quality.FindBugs
@@ -180,21 +179,16 @@ class AnalysisTaskManager {
                     task.reportsDir = reportsDir
 
                     // default rule path or empty
-                    setCreateDefaultPmdRule(StringUtils.isEmpty(
-                            pmd.ruleSetFiles) || "${reportsDir}/${DefaultRulesTask.DEFAULT_PMD_RULE_PATH}" ==
-                            pmd.ruleSetFiles)
-                    setCreateDefaultLintRule(StringUtils.isEmpty(
-                            lint.lintConfig) || "${reportsDir}/${DefaultRulesTask.DEFAULT_LINT_RULE_PATH}" ==
-                            lint.lintConfig)
-                    setCreateDefaultFindBugsRule(StringUtils.isEmpty(
-                            findBugs.excludeFilter) || "${reportsDir}/${DefaultRulesTask.DEFAULT_FINDBUGS_RULE_PATH}" ==
-                            findBugs.excludeFilter)
-                    setCreateDefaultCheckstyleRule(StringUtils.isEmpty(
-                            checkstyle.configDir) || "${reportsDir}/${DefaultRulesTask.DEFAULT_CHECKSTYLE_RULE_PATH}" ==
-                            checkstyle.configDir)
-                    setCreateDefaultCheckstyleSuppressionsRule(StringUtils.isEmpty(
-                            checkstyle.suppressionsPath) || "${reportsDir}/${DefaultRulesTask.DEFAULT_CHECKSTYLE_SUPPRESSIONS_RULE_PATH}" ==
-                            checkstyle.suppressionsPath)
+                    setCreateDefaultPmdRule(AndroidStaticAnalysis.isPmdRuleEmpty(pmd, reportsDir))
+                    setCreateDefaultLintRule(
+                            AndroidStaticAnalysis.isLintRuleEmpty(lint, reportsDir))
+                    setCreateDefaultFindBugsRule(
+                            AndroidStaticAnalysis.isFindBugsRuleEmpty(findBugs, reportsDir))
+                    setCreateDefaultCheckstyleRule(
+                            AndroidStaticAnalysis.isCheckstyleRuleEmpty(checkstyle, reportsDir))
+                    setCreateDefaultCheckstyleSuppressionsRule(
+                            AndroidStaticAnalysis.isCheckstyleSuppressionEmpty(checkstyle,
+                                    reportsDir))
                 }
         }
     }
