@@ -17,6 +17,7 @@
 package com.camnter.android.staticanalysis.plugin
 
 import com.camnter.android.staticanalysis.plugin.extension.*
+import com.camnter.android.staticanalysis.plugin.task.flow.*
 import com.camnter.android.staticanalysis.plugin.utils.PluginUtils
 import com.camnter.android.staticanalysis.plugin.utils.TaskUtils
 import org.gradle.api.Plugin
@@ -79,12 +80,14 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
             // assembleDebug
             if (analysis.debugAnalysis) {
                 def assembleDebug = project.tasks.findByName('assembleDebug')
+                // TODO switch
                 configAnalysis(project, assembleDebug, analysis, rulesDebug, reportsDir, 'debug')
             }
 
             // assembleRelease
             if (analysis.releaseAnalysis) {
                 def assembleRelease = project.tasks.findByName('assembleRelease')
+                // TODO switch
                 configAnalysis(project, assembleRelease, analysis, rulesRelease, reportsDir,
                         'release')
             }
@@ -94,26 +97,27 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
     static def configAnalysis(Project project, Task target, AndroidStaticAnalysis analysis,
             Task rules,
             String reportsDir, String suffix) {
-        def pmd = AnalysisTaskManager.createPmdTask(project, analysis, reportsDir, suffix)
-        def lint = AnalysisTaskManager.configAndroidLint(project, analysis, reportsDir)
-        def findbugs = AnalysisTaskManager.createFindBugsTask(project, analysis, reportsDir, suffix)
-        def checkstyle = AnalysisTaskManager.createCheckstyleTask(project, analysis,
+        PmdCheckTaskChain pmdTaskChain = new PmdCheckTaskChain(project, analysis, reportsDir,
+                suffix)
+        LintCheckTaskChain lintTaskChain = new LintCheckTaskChain(project, analysis, reportsDir,
+                suffix)
+        FindBugsCheckTaskChain findBugsTaskChain = new FindBugsCheckTaskChain(project, analysis,
+                reportsDir,
+                suffix)
+        CheckstyleCheckTaskChain checkstyleTaskChain = new CheckstyleCheckTaskChain(project,
+                analysis,
                 reportsDir, suffix)
+        TargetTaskChain targetTaskChain = new TargetTaskChain(target)
 
-        if (null != rules) {
-            // rules -> pmd -> lint -> findbugs -> checkstyle -> target
-            TaskUtils.adjustTaskPriorities(rules, pmd)
-            TaskUtils.adjustTaskPriorities(pmd, lint)
-            TaskUtils.adjustTaskPriorities(lint, findbugs)
-            TaskUtils.adjustTaskPriorities(findbugs, checkstyle)
-            TaskUtils.adjustTaskPriorities(checkstyle, target)
-        } else {
-            // pmd -> lint -> findbugs -> checkstyle -> target
-            TaskUtils.adjustTaskPriorities(pmd, lint)
-            TaskUtils.adjustTaskPriorities(lint, findbugs)
-            TaskUtils.adjustTaskPriorities(findbugs, checkstyle)
-            TaskUtils.adjustTaskPriorities(checkstyle, target)
-        }
+        pmdTaskChain.next = lintTaskChain
+        lintTaskChain.next = findBugsTaskChain
+        findBugsTaskChain.next = checkstyleTaskChain
+        checkstyleTaskChain.next = targetTaskChain
+        /*
+         * rules -> pmd -> lint -> findbugs -> checkstyle -> target
+         * pmd -> lint -> findbugs -> checkstyle -> target
+         */
+        pmdTaskChain.execute(null != rules ? rules : null)
     }
 
     static def configEmail(Project project, Task target, EmailExtension emailExtension,

@@ -22,6 +22,7 @@ package com.camnter.android.staticanalysis.plugin.extension
 
 class PmdExtension extends AnalysisExtension {
 
+    public boolean enable = true
     def ruleSets = []
     public String ruleSetFiles = ''
 

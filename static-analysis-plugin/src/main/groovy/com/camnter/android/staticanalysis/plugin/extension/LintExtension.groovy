@@ -22,6 +22,7 @@ package com.camnter.android.staticanalysis.plugin.extension
 
 class LintExtension {
 
+    public boolean enable = true
     public String lintConfig = ''
 
 }

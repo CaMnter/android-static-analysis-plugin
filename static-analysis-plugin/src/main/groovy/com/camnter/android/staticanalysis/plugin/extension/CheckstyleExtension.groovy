@@ -22,6 +22,7 @@ package com.camnter.android.staticanalysis.plugin.extension
 
 class CheckstyleExtension extends AnalysisExtension {
 
+    public boolean enable = true
     public String configDir = ''
     public int maxErrors = 30
     public int maxWarnings = Integer.MAX_VALUE
