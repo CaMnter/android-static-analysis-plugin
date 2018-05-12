@@ -1,29 +1,4 @@
-/*
- * Copyright (C) 2018 CaMnter yuanyu.camnter@gmail.com
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.camnter.android.staticanalysis.plugin.rules
-
-/**
- * @author CaMnter
- */
-
-class CheckstyleRule {
-
-    static def CONFIG =
-            """<?xml version="1.0"?>
+<?xml version="1.0"?>
 <!DOCTYPE module PUBLIC
     "-//Puppy Crawl//DTD Check Configuration 1.1//EN"
     "http://www.puppycrawl.com/dtds/configuration_1_1.dtd">
@@ -35,7 +10,7 @@ class CheckstyleRule {
     </module>
 
     <module name="SuppressionFilter">
-        <property name="file" value="\${checkstyleSuppressionsPath}"/>
+        <property name="file" value="${checkstyleSuppressionsPath}"/>
     </module>
 
     <module name="TreeWalker">
@@ -43,7 +18,7 @@ class CheckstyleRule {
         <!-- See http://checkstyle.sf.net/config_sizes.html !-->
         <!-- Checks for long lines. !-->
         <module name="LineLength">
-            <property name="ignorePattern" value="^\$"/>
+            <property name="ignorePattern" value="^$"/>
             <property name="max" value="120"/>
         </module>
 
@@ -191,13 +166,13 @@ class CheckstyleRule {
         <!-- Checks for class type parameter name naming conventions. !-->
         <!-- See http://checkstyle.sourceforge.net/config_naming.html#ClassTypeParameterName !-->
         <module name="ClassTypeParameterName">
-            <property name="format" value="^[A-Z]\$"/>
+            <property name="format" value="^[A-Z]$"/>
         </module>
 
         <!-- Checks for constant name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
         <module name="ConstantName">
-            <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*\$"/>
+            <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"/>
             <property name="applyToPublic" value="true"/>
             <property name="applyToProtected" value="true"/>
             <property name="applyToPackage" value="true"/>
@@ -207,21 +182,21 @@ class CheckstyleRule {
         <!-- Checks for local final variable name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
         <module name="LocalFinalVariableName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*\$"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
             <property name="tokens" value="VARIABLE_DEF, PARAMETER_DEF"/>
         </module>
 
         <!-- Checks for local variable name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
         <module name="LocalVariableName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*\$"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
             <property name="tokens" value="VARIABLE_DEF"/>
         </module>
 
         <!-- Checks for member variable name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
         <module name="MemberName">
-            <property name="format" value="^m[A-Z][a-zA-Z0-9]*\$"/>
+            <property name="format" value="^m[A-Z][a-zA-Z0-9]*$"/>
             <property name="applyToPublic" value="true"/>
             <property name="applyToProtected" value="true"/>
             <property name="applyToPackage" value="true"/>
@@ -231,31 +206,31 @@ class CheckstyleRule {
         <!-- Checks for method name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
         <module name="MethodName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*\$"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
         </module>
 
         <!-- Checks for method type parameter name naming conventions. !-->
         <!-- See http://checkstyle.sourceforge.net/config_naming.html#MethodTypeParameterName !-->
         <module name="MethodTypeParameterName">
-            <property name="format" value="^[A-Z]\$"/>
+            <property name="format" value="^[A-Z]$"/>
         </module>
 
         <!-- Checks for package name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
         <module name="PackageName">
-            <property name="format" value="^[a-z][a-z0-9]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*\$"/>
+            <property name="format" value="^[a-z][a-z0-9]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*$"/>
         </module>
 
         <!-- Checks for parameter name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
         <module name="ParameterName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*\$"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
         </module>
 
         <!-- Checks for static variable name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
         <module name="StaticVariableName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*\$"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
             <property name="applyToPublic" value="true"/>
             <property name="applyToProtected" value="true"/>
             <property name="applyToPackage" value="true"/>
@@ -265,7 +240,7 @@ class CheckstyleRule {
         <!-- Checks for type name naming conventions. !-->
         <!-- See http://checkstyle.sf.net/config_naming.html !-->
         <module name="TypeName">
-            <property name="format" value="^[A-Z][a-zA-Z0-9]*\$"/>
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
             <property name="tokens" value="CLASS_DEF, INTERFACE_DEF"/>
             <property name="applyToPublic" value="true"/>
             <property name="applyToProtected" value="true"/>
@@ -284,7 +259,7 @@ class CheckstyleRule {
             <property name="excludeScope"        value=""/>
             !-->
             <property name="checkFirstSentence" value="false"/>
-            <property name="endOfSentenceFormat" value="([.?!][ \\t\\n\\r\\f&lt;])|([.?!]\$)"/>
+            <property name="endOfSentenceFormat" value="([.?!][ \t\n\r\f&lt;])|([.?!]$)"/>
             <property name="checkEmptyJavadoc" value="false"/>
             <property name="checkHtml" value="true"/>
             <property name="tokens"
@@ -350,7 +325,7 @@ class CheckstyleRule {
         <module name="VisibilityModifier">
             <property name="packageAllowed" value="false"/>
             <property name="protectedAllowed" value="true"/>
-            <property name="publicMemberPattern" value="^serialVersionUID\$"/>
+            <property name="publicMemberPattern" value="^serialVersionUID$"/>
         </module>
 
         <!-- Checks that classes (except abtract one) define a ctor and don't rely on the default one. !-->
@@ -458,22 +433,3 @@ class CheckstyleRule {
     </module>
 
 </module>
-"""
-    static def SUPPRESSIONS =
-            """<?xml version="1.0"?>
-<!DOCTYPE suppressions PUBLIC
-    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
-    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
-
-<suppressions>
-    <suppress checks="[a-zA-Z0-9]*" files="R.java"/>
-    <suppress checks="[a-zA-Z0-9]*" files="BuildConfig.java"/>
-    <suppress checks="[a-zA-Z0-9]*" files="Test"/>
-    <suppress checks="[a-zA-Z0-9]*" files="Dagger*"/>
-    <suppress checks="[a-zA-Z0-9]*" files=".*_.*Factory.java"/>
-    <suppress checks="[a-zA-Z0-9]*" files=".*ViewInjector.java"/>
-    <suppress checks="[a-zA-Z0-9]*" files=".*_MembersInjector.java"/>
-
-</suppressions>
-"""
-}

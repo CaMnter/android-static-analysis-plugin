@@ -16,10 +16,7 @@
 
 package com.camnter.android.staticanalysis.plugin.task
 
-import com.camnter.android.staticanalysis.plugin.rules.CheckstyleRule
-import com.camnter.android.staticanalysis.plugin.rules.FindBugsRule
-import com.camnter.android.staticanalysis.plugin.rules.LintRule
-import com.camnter.android.staticanalysis.plugin.rules.PmdRule
+import com.camnter.android.staticanalysis.plugin.utils.ResourcesUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -62,48 +59,47 @@ class DefaultRulesTask extends DefaultTask {
     @Optional
     boolean createDefaultCheckstyleSuppressionsRule = false
 
+    def classloader
+
     @TaskAction
     void main() {
+        classloader = this.class.classLoader
         if (createDefaultPmdRule) {
             File ruleFile = new File(reportsDir, DEFAULT_PMD_RULE_PATH)
+
             printf "%-51s = %s\n",
                     ['[DefaultRulesTask]   [pmd-rule-file]', ruleFile.absolutePath]
-            createRuleFile(ruleFile, PmdRule.RULE_SET)
+            ResourcesUtils.copyResource(classloader, "META-INF/gradle-plugins/pmd-ruleset.xml",
+                    ruleFile.absolutePath)
         }
         if (createDefaultLintRule) {
             File ruleFile = new File(reportsDir, DEFAULT_LINT_RULE_PATH)
             printf "%-51s = %s\n",
                     ['[DefaultRulesTask]   [lint-rule-file]', ruleFile.absolutePath]
-            createRuleFile(ruleFile, LintRule.CONFIG)
+            ResourcesUtils.copyResource(classloader, "META-INF/gradle-plugins/lint.xml",
+                    ruleFile.absolutePath)
         }
         if (createDefaultFindBugsRule) {
             File ruleFile = new File(reportsDir, DEFAULT_FINDBUGS_RULE_PATH)
             printf "%-51s = %s\n",
                     ['[DefaultRulesTask]   [findbugs-rule-file]', ruleFile.absolutePath]
-            createRuleFile(ruleFile, FindBugsRule.EXCLUDE_FILTER)
+            ResourcesUtils.copyResource(classloader, "META-INF/gradle-plugins/findbugs-filter.xml",
+                    ruleFile.absolutePath)
         }
         if (createDefaultCheckstyleRule) {
             File ruleFile = new File(reportsDir, DEFAULT_CHECKSTYLE_RULE_PATH)
             printf "%-51s = %s\n",
                     ['[DefaultRulesTask]   [checkstyle-rule-file]', ruleFile.absolutePath]
-            createRuleFile(ruleFile, CheckstyleRule.CONFIG)
+            ResourcesUtils.copyResource(classloader, "META-INF/gradle-plugins/checkstyle.xml",
+                    ruleFile.absolutePath)
         }
         if (createDefaultCheckstyleSuppressionsRule) {
             File ruleFile = new File(reportsDir, DEFAULT_CHECKSTYLE_SUPPRESSIONS_RULE_PATH)
             printf "%-51s = %s\n",
                     ['[DefaultRulesTask]   [checkstyle-suppressions-file]', ruleFile.absolutePath]
-            createRuleFile(ruleFile, CheckstyleRule.SUPPRESSIONS)
+            ResourcesUtils.copyResource(classloader,
+                    "META-INF/gradle-plugins/checkstyle-suppressions.xml",
+                    ruleFile.absolutePath)
         }
-    }
-
-    static def createRuleFile(File ruleFile, String content) {
-        def checkFileClosure = { File file ->
-            if (file == null) return
-            if (!file.parentFile.exists()) file.mkdirs()
-            if (file.exists()) file.delete()
-            file.createNewFile()
-        }
-        checkFileClosure.call(ruleFile)
-        ruleFile.withWriter('utf-8') { writer -> writer.write content }
     }
 }
