@@ -95,7 +95,7 @@ androidStaticAnalysis {
         // eg: 0 - Integer.MAX_VALUE
         maxWarnings = 2147483647
         // eg: "${project.project.rootDir}/h.xml"
-        suppressionsPath = "${project.buildDir}/android-static-analysis/default-rules/suppressions.xml"
+        suppressionsPath = "${project.buildDir}/android-static-analysis/default-rules/checkstyle-suppressions.xml"
     }
 }
 ```
