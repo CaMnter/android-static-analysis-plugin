@@ -17,7 +17,7 @@
 
 ```groovy
 dependencies {
-    com.camnter.gradle.plugin:static-analysis-plugin:1.0.5
+    com.camnter.gradle.plugin:static-analysis-plugin:1.0.6
 }
 ```
 
@@ -57,6 +57,8 @@ androidStaticAnalysis {
     // eg: true or false
     releaseAnalysis = true
     pmd {
+        // eg: true or false
+        enable = true
         // eg: "6.2.0"
         toolVersion = "6.2.0"
         // eg: true or false
@@ -67,10 +69,14 @@ androidStaticAnalysis {
         ruleSetFiles = "${project.buildDir}/android-static-analysis/default-rules/pmd-ruleset.xml"
     }
     lint {
+        // eg: true or false
+        enable = true
         // eg: "${project.project.rootDir}/d.xml"
         lintConfig = "${project.buildDir}/android-static-analysis/default-rules/lint.xml"
     }
     findBugs {
+        // eg: true or false
+        enable = true
         // eg: "3.0.1"
         toolVersion = "3.0.1"
         // eg: true or false
@@ -84,6 +90,8 @@ androidStaticAnalysis {
         reportLevel = "high"
     }
     checkstyle {
+        // eg: true or false
+        enable = true
         // eg: "8.8"
         toolVersion = "8.8"
         // eg: true or false
