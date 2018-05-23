@@ -456,6 +456,7 @@ interface Envelope {
 
             for (int i = 0; i < safeHtmlFiles.size(); i++) {
                 File htmlFile = safeHtmlFiles.get(i)
+                if (!htmlFile.exists()) continue
                 Session session = sessions.get(i)
 
                 MimeMessage message = new MimeMessage(session)
@@ -504,10 +505,29 @@ interface Envelope {
                 // theme
                 message.setSubject(email.theme)
 
-                // content
                 StringBuilder builder = new StringBuilder()
                 htmlFile.eachLine { String line -> builder.append(line) }
-                message.setContent(builder.toString(), "text/html")
+
+                BodyPart contentBodyPart = new MimeBodyPart()
+                if (!StringUtils.isEmpty(email.content)) {
+                    contentBodyPart.setText(builder.toString(), "utf-8", "html")
+                }
+
+                BodyPart dividerPart = new MimeBodyPart()
+                dividerPart.setText("\n\n\n")
+
+                BodyPart enclosureBodyPart = new MimeBodyPart()
+                DataSource source = new FileDataSource(htmlFile.absolutePath)
+                enclosureBodyPart.setDataHandler(new DataHandler(source))
+                enclosureBodyPart.setFileName(htmlFile.name)
+
+                // content
+                Multipart multipart = new MimeMultipart()
+                multipart.addBodyPart(contentBodyPart)
+                multipart.addBodyPart(dividerPart)
+                multipart.addBodyPart(enclosureBodyPart)
+
+                message.setContent(multipart)
                 Transport.send(message, smtpUser, smtpPassword)
                 printf "%-29s = %s\n",
                         ['[EmailTask]   [sendHtmlEmail]', "${htmlFile.absolutePath}"]

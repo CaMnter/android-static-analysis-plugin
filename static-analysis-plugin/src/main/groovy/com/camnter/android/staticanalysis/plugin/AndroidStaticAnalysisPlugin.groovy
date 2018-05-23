@@ -53,12 +53,12 @@ class AndroidStaticAnalysisPlugin implements Plugin<Project> {
 
             AndroidStaticAnalysis analysis = project.androidStaticAnalysis
 
-            def createDefalutRulesTask = AndroidStaticAnalysis.isCreateDefaultRulesTask(analysis,
+            def createDefaultRulesTask = AndroidStaticAnalysis.isCreateDefaultRulesTask(analysis,
                     reportsDir)
             def rulesCheck = null
             def rulesDebug = null
             def rulesRelease = null
-            if (createDefalutRulesTask) {
+            if (createDefaultRulesTask) {
                 rulesCheck =
                         AnalysisTaskManager.createDefaultRulesTask(project, reportsDir, analysis,
                                 'check')
